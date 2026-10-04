@@ -1,94 +1,1388 @@
-<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>MLBB Tournament</title><style>
-:root{--red:#fe1b0a;--blue:#215aa8;--silver:#c9cdd2;--dark:#11151d;--panel:#171a20}
-*{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:Arial,Helvetica,sans-serif;color:#11151d}
-body{background:#fff url("https://raw.githubusercontent.com/ssekartadji5/Paragon-Sport-Community-Cup-Plant-2026-Voli/main/VOLLEY.png") center/cover fixed no-repeat;color:#111;font-family:Inter,Arial,sans-serif;margin:0;overflow-x:auto}
-body:before{content:"";position:fixed;inset:0;background:url("https://raw.githubusercontent.com/ssekartadji5/Paragon-Sport-Community-Cup-Plant-2026-Voli/main/VOLLEY.png") center/cover fixed no-repeat;opacity:1;z-index:-1;pointer-events:none}
-.app{position:relative;z-index:1}body:before{display:none!important}.app:before{display:none}
-header{position:relative;z-index:2;padding:18px 28px;border-bottom:2px solid #ffffffaa;display:flex;justify-content:space-between;align-items:center;background:#11151dea;color:#fff}
-h1{margin:0;font-size:24px;letter-spacing:1px}header small{color:#c8ccd4}.live{margin-left:auto;background:var(--red);padding:7px 12px;border-radius:999px;font-weight:800}
-.mode{display:flex;gap:6px;margin-left:auto;margin-right:8px}.mode button{background:#2a3039;color:#fff;border:1px solid #ffffff33;border-radius:6px;padding:7px 10px;font-size:10px;font-weight:800;cursor:pointer}.mode button.active{background:var(--red);border-color:var(--red)}#adminMode{font-size:0;width:38px;height:32px;display:flex;align-items:center;justify-content:center;padding:0;margin-left:4px}#adminMode:after{content:"⚙";font-size:20px;line-height:1}
-.wrap{position:relative;z-index:1;padding:22px 24px}.hero{text-align:center;margin-bottom:16px}.eyebrow{font-size:11px;color:#4f555d;letter-spacing:2px;font-weight:800}.hero h2{font-size:34px;margin:4px 0}.hero p{margin:0;color:#555b64}
- .board{background:rgba(255,255,255,.72);border:2px solid #ffffffaa;border-radius:6px;padding:18px;overflow:auto;box-shadow:0 18px 50px #0004}
-.rounds{display:flex;gap:34px;min-width:1250px;height:650px;padding:18px 22px}
-.round{position:relative;display:flex;flex:1 1 0;min-width:150px;flex-direction:column;height:100%;padding-top:30px;justify-content:space-around}.round h3{position:absolute;top:0;left:0;right:0;margin:0;color:#333840;font-size:10px;letter-spacing:1.4px;text-align:center;white-space:nowrap;font-weight:900}.round.center{justify-content:center;padding-top:0}.round.center h3{color:var(--red)}
- .match{position:relative;background:linear-gradient(145deg,#353a42,#171a20);border:1px solid #8f969f;border-radius:5px;padding:6px;box-shadow:0 6px 15px #0007;margin:0 0 26px}.left .match{border-left:3px solid var(--red)}.right .match{border-right:3px solid var(--blue)}.match:after{position:absolute;left:0;right:0;bottom:-18px;text-align:center;color:#343a42;font-size:8px;font-weight:900;letter-spacing:.8px}.match[data-match="R1"]:after{content:"MATCH 01"}.match[data-match="R2"]:after{content:"MATCH 02"}.match[data-match="R3"]:after{content:"MATCH 03"}.match[data-match="R4"]:after{content:"MATCH 04"}.match[data-match="R5"]:after{content:"MATCH 05"}.match[data-match="R6"]:after{content:"MATCH 06"}.match[data-match="R7"]:after{content:"MATCH 07"}.match[data-match="R8"]:after{content:"MATCH 08"}.match[data-match="Q1"]:after{content:"MATCH 09"}.match[data-match="Q2"]:after{content:"MATCH 10"}.match[data-match="Q3"]:after{content:"MATCH 11"}.match[data-match="Q4"]:after{content:"MATCH 12"}.match[data-match="S1"]:after{content:"MATCH 13"}.match[data-match="S2"]:after{content:"MATCH 14"}.match[data-match="F"]:after{content:"MATCH 15"}.match[data-match="T"]:after{content:"MATCH 16"}.left .match:not(:last-child):before,.right .match:not(:last-child):before{display:none!important}
-.team{display:flex;justify-content:space-between;align-items:center;padding:6px 7px;background:#59606a;color:#fff;border-radius:3px;margin:2px 0;min-height:27px;font-size:10px;line-height:1.1;white-space:nowrap;overflow:hidden}.team.win{border-left:3px solid var(--red);background:#4b3b3d}.score{font-weight:900;margin-left:5px;color:#fff}.status{font-size:7px;color:#c9cdd2;margin-top:4px}.early .score{display:none}
-.grandbox,.thirdbox{border-radius:7px;padding:8px}.grandbox{background:linear-gradient(145deg,#f1f2f3,#c8ccd1);border:3px solid var(--red);color:#111;box-shadow:0 10px 25px #0005}.thirdbox{margin-top:14px;background:#111722;border:2px solid #e4a900;color:#fff}.grandtitle{background:var(--red);color:#fff;border-radius:4px;padding:5px;font-size:10px;font-weight:900}.gteam{display:flex;justify-content:space-between;background:#fff;margin-top:5px;padding:7px 6px;border-radius:3px;font-size:10px;font-weight:800}.thirdbox .gteam{color:#111}.champ{margin-top:7px;background:#111722;color:#ffcc33;border-radius:4px;padding:7px;font-size:10px;font-weight:900}
-.admin-only{margin-top:22px;background:#090b10e8;border:1px solid #ffffff18;border-radius:16px;padding:20px;color:#fff}.team-grid{display:grid;grid-template-columns:repeat(4,minmax(110px,1fr));gap:8px}.team-grid input,.controls input,.controls select{background:#151922;color:#fff;border:1px solid #ffffff25;border-radius:7px;padding:10px}.controls{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}.btn{background:var(--red);color:#fff;border:0;border-radius:7px;padding:10px 14px;font-weight:800;cursor:pointer}.btn.blue{background:var(--blue)}.note{margin-top:14px;color:#aeb4c0;font-size:12px}
-.is-tv .admin-only{display:none}.is-tv header{padding:12px 24px}.is-tv .wrap{padding:12px 16px}.is-tv .hero{margin-bottom:8px}.is-tv .hero h2{font-size:28px}.is-tv .rounds{height:calc(100vh - 150px)}
-@media(max-width:700px){header{padding:16px}.wrap{padding:16px}.hero h2{font-size:26px}.rounds{min-width:1160px}.team-grid{grid-template-columns:repeat(2,minmax(110px,1fr))}}
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sport Community Cup - Voli</title>
+
+<style>
+:root{
+  --red:#fe1b0a;
+  --blue:#215aa8;
+  --silver:#c9cdd2;
+  --dark:#11151d;
+}
+
+*{
+  box-sizing:border-box;
+}
+
+html,body{
+  margin:0;
+  min-height:100%;
+  font-family:Arial,Helvetica,sans-serif;
+}
+
+body{
+  background:#fff url("https://raw.githubusercontent.com/ssekartadji5/Paragon-Sport-Community-Cup-Plant-2026-Voli/main/VOLLEY.png") center/cover fixed no-repeat;
+  color:#111;
+  overflow-x:auto;
+}
+
+header{
+  position:relative;
+  z-index:10;
+  padding:18px 36px;
+  border-bottom:2px solid #ffffffaa;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  background:#11151dea;
+  color:#fff;
+}
+
+h1{
+  margin:0;
+  font-size:24px;
+  letter-spacing:1px;
+}
+
+header small{
+  color:#c8ccd4;
+  font-size:16px;
+}
+
+.mode{
+  display:flex;
+  gap:8px;
+  margin-left:auto;
+  margin-right:10px;
+}
+
+.mode button{
+  background:#2a3039;
+  color:#fff;
+  border:1px solid #ffffff33;
+  border-radius:7px;
+  padding:9px 14px;
+  font-size:12px;
+  font-weight:800;
+  cursor:pointer;
+}
+
+.mode button.active{
+  background:var(--red);
+  border-color:var(--red);
+}
+
+#adminMode{
+  font-size:0;
+  width:42px;
+  height:36px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:0;
+  margin-left:4px;
+  background:#fff;
+  color:#111;
+  border:0;
+  border-radius:7px;
+  cursor:pointer;
+}
+
+#adminMode:after{
+  content:"⚙";
+  font-size:21px;
+}
+
+.wrap{
+  position:relative;
+  z-index:1;
+  padding:22px 24px;
+}
+
+.hero{
+  text-align:center;
+  margin-bottom:18px;
+}
+
+.hero h2{
+  font-size:34px;
+  margin:5px 0;
+  font-weight:900;
+}
+
+.board{
+  background:rgba(255,255,255,.72);
+  border:2px solid #ffffffaa;
+  border-radius:7px;
+  padding:18px;
+  overflow:auto;
+  box-shadow:0 18px 50px #0004;
+}
+
+.rounds{
+  display:flex;
+  gap:34px;
+  min-width:1250px;
+  width:max-content;
+  height:650px;
+  padding:18px 22px;
+}
+
+.round{
+  position:relative;
+  display:flex;
+  flex:0 0 150px;
+  width:150px;
+  min-width:150px;
+  flex-direction:column;
+  height:100%;
+  padding-top:30px;
+  justify-content:space-around;
+}
+
+.round h3{
+  position:absolute;
+  top:0;
+  left:0;
+  right:0;
+  margin:0;
+  color:#333840;
+  font-size:10px;
+  letter-spacing:1.4px;
+  text-align:center;
+  white-space:nowrap;
+  font-weight:900;
+}
+
+.round.center{
+  justify-content:center;
+  padding-top:0;
+}
+
+.round.center h3{
+  color:var(--red);
+}
+
+.match{
+  position:relative;
+  background:linear-gradient(145deg,#353a42,#171a20);
+  border:1px solid #8f969f;
+  border-radius:5px;
+  padding:6px;
+  box-shadow:0 6px 15px #0007;
+  margin:0 0 26px;
+}
+
+.left .match{
+  border-left:3px solid var(--red);
+}
+
+.right .match{
+  border-right:3px solid var(--blue);
+}
+
+/* garis konektor DIHILANGKAN */
+.left .match:before,
+.right .match:before{
+  display:none !important;
+}
+
+.match:after{
+  position:absolute;
+  left:0;
+  right:0;
+  bottom:-18px;
+  text-align:center;
+  color:#343a42;
+  font-size:8px;
+  font-weight:900;
+  letter-spacing:.8px;
+}
+
+.match[data-match="R1"]:after{content:"MATCH 01"}
+.match[data-match="R2"]:after{content:"MATCH 02"}
+.match[data-match="R3"]:after{content:"MATCH 03"}
+.match[data-match="R4"]:after{content:"MATCH 04"}
+.match[data-match="R5"]:after{content:"MATCH 05"}
+.match[data-match="R6"]:after{content:"MATCH 06"}
+.match[data-match="R7"]:after{content:"MATCH 07"}
+.match[data-match="R8"]:after{content:"MATCH 08"}
+.match[data-match="Q1"]:after{content:"MATCH 09"}
+.match[data-match="Q2"]:after{content:"MATCH 10"}
+.match[data-match="Q3"]:after{content:"MATCH 11"}
+.match[data-match="Q4"]:after{content:"MATCH 12"}
+.match[data-match="S1"]:after{content:"MATCH 13"}
+.match[data-match="S2"]:after{content:"MATCH 14"}
+.match[data-match="F"]:after{content:"MATCH 15"}
+.match[data-match="T"]:after{content:"MATCH 16"}
+
+.team{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:7px;
+  background:#59606a;
+  color:#fff;
+  border-radius:3px;
+  margin:2px 0;
+  min-height:28px;
+  font-size:10px;
+  font-weight:700;
+  line-height:1.1;
+  white-space:nowrap;
+  overflow:hidden;
+}
+
+.team.win{
+  border-left:3px solid var(--red);
+  background:#4b3b3d;
+}
+
+.score{
+  font-weight:900;
+  margin-left:5px;
+  color:#fff;
+}
+
+.grandbox{
+  background:linear-gradient(145deg,#f1f2f3,#c8ccd1);
+  border:3px solid var(--red);
+  border-radius:7px;
+  padding:8px;
+  color:#111;
+  box-shadow:0 10px 25px #0005;
+}
+
+.thirdbox{
+  margin-top:16px;
+  background:#111722;
+  border:2px solid #e4a900;
+  border-radius:7px;
+  padding:8px;
+  color:#fff;
+}
+
+.grandtitle{
+  background:var(--red);
+  color:#fff;
+  border-radius:4px;
+  padding:6px;
+  font-size:10px;
+  font-weight:900;
+  text-align:center;
+}
+
+.champ{
+  margin-top:7px;
+  background:#111722;
+  color:#ffcc33;
+  border-radius:4px;
+  padding:7px;
+  font-size:10px;
+  font-weight:900;
+  text-align:center;
+}
+
+.admin-only{
+  margin-top:22px;
+  background:#090b10e8;
+  border:1px solid #ffffff18;
+  border-radius:14px;
+  padding:20px;
+  color:#fff;
+  display:none;
+}
+
+.is-admin .admin-only{
+  display:block;
+}
+
+.team-grid{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(110px,1fr));
+  gap:8px;
+}
+
+.team-grid input,
+.controls select{
+  background:#151922;
+  color:#fff;
+  border:1px solid #ffffff25;
+  border-radius:7px;
+  padding:10px;
+}
+
+.controls{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-top:16px;
+}
+
+.btn{
+  background:var(--red);
+  color:#fff;
+  border:0;
+  border-radius:7px;
+  padding:10px 14px;
+  font-weight:800;
+  cursor:pointer;
+}
+
+.btn.blue{
+  background:var(--blue);
+}
+
+.note{
+  margin-top:14px;
+  color:#aeb4c0;
+  font-size:12px;
+}
+
+@media(max-width:700px){
+
+  header{
+    padding:16px;
+  }
+
+  .wrap{
+    padding:16px;
+  }
+
+  .hero h2{
+    font-size:26px;
+  }
+
+  .rounds{
+    min-width:1160px;
+  }
+
+  .team-grid{
+    grid-template-columns:repeat(2,minmax(110px,1fr));
+  }
+
+}
 </style>
 </head>
+
 <body>
-<main class="app">
-<header><div><h1>Sport Community Cup Plant - 2026</h1><small>PARAGON SPORT COMMUNITY • <span id="gameHeader">Voli Putra</span></small></div><div class="mode"><button type="button" id="menMode" class="active">VOLI PUTRA</button><button type="button" id="womenMode">VOLI PUTRI</button></div><div class="live" id="liveBadge" style="display:none">LIVE</div><button type="button" id="adminMode" aria-label="Buka Admin Control" title="Admin Settings">ADMIN</button></header>
+
+<header>
+
+  <div>
+    <h1>Sport Community Cup Plant - 2026</h1>
+
+    <small>
+      PARAGON SPORT COMMUNITY •
+      <span id="gameHeader">Voli Putra</span>
+    </small>
+  </div>
+
+  <div class="mode">
+
+    <button
+      type="button"
+      id="menMode"
+      class="active">
+      VOLI PUTRA
+    </button>
+
+    <button
+      type="button"
+      id="womenMode">
+      VOLI PUTRI
+    </button>
+
+  </div>
+
+  <button
+    type="button"
+    id="adminMode"
+    title="Admin Settings">
+    ADMIN
+  </button>
+
+</header>
+
+
 <div class="wrap">
-<section class="hero"><h2><span id="gameTitle">VOLI PUTRA</span> - ROUND OF 16</h2></section>
-<section class="board"><div class="rounds" id="bracket"></div></section>
-<section class="admin-only">
-<div class="eyebrow">ADMIN CONTROL</div><h3 style="margin:6px 0">TOURNAMENT SETUP</h3>
-<div class="team-grid" id="teamInputs"></div>
-<div class="controls"><button class="btn" id="generate">GENERATE BRACKET</button><button class="btn blue" id="reset">RESET</button></div>
-<div class="controls"><select id="matchSelect"></select><select id="scoreA"><option value="0">0 set</option><option value="1">1 set</option><option value="2">2 set</option></select><span style="align-self:center">–</span><select id="scoreB"><option value="0">0 set</option><option value="1">1 set</option><option value="2">2 set</option></select><button class="btn" id="saveScore">SIMPAN SKOR</button></div>
-<div class="note">Format pertandingan: Best of 3 — tim pertama yang menang 2 set menjadi pemenang.</div>
+
+<section class="hero">
+
+  <h2>
+    <span id="gameTitle">VOLI PUTRA</span>
+    - ROUND OF 16
+  </h2>
+
 </section>
+
+
+<section class="board">
+
+  <div
+    class="rounds"
+    id="bracket">
+  </div>
+
+</section>
+
+
+<section
+  class="admin-only"
+  id="adminPanel">
+
+  <div
+    style="
+      font-size:11px;
+      letter-spacing:2px;
+      font-weight:800;
+      color:#c9cdd2;
+    ">
+    ADMIN CONTROL
+  </div>
+
+  <h3>
+    TOURNAMENT SETUP
+  </h3>
+
+  <div
+    class="team-grid"
+    id="teamInputs">
+  </div>
+
+  <div class="controls">
+
+    <button
+      class="btn"
+      id="generate">
+      GENERATE BRACKET
+    </button>
+
+    <button
+      class="btn blue"
+      id="reset">
+      RESET
+    </button>
+
+  </div>
+
+
+  <div class="controls">
+
+    <select id="matchSelect"></select>
+
+    <select id="scoreA">
+      <option value="0">0 set</option>
+      <option value="1">1 set</option>
+      <option value="2">2 set</option>
+    </select>
+
+    <span style="align-self:center">
+      –
+    </span>
+
+    <select id="scoreB">
+      <option value="0">0 set</option>
+      <option value="1">1 set</option>
+      <option value="2">2 set</option>
+    </select>
+
+    <button
+      class="btn"
+      id="saveScore">
+      SIMPAN SKOR
+    </button>
+
+  </div>
+
+
+  <div class="note">
+    Format pertandingan: Best of 3 — tim pertama yang menang 2 set menjadi pemenang.
+  </div>
+
+</section>
+
 </div>
-</main>
+
+
 <script>
+
 (function(){
-const $=id=>document.getElementById(id);
-let women=false;
-let menTeams=Array(14).fill(""),womenTeams=Array(4).fill("");
-let matches={},currentMatch=null;
-function setMode(mode){document.body.className=mode==="tv"?"is-tv":"is-admin";$("adminMode").classList.toggle("active",mode==="admin");}
-function match(a="",b="",id=""){const m=id&&matches[id]?matches[id]:null;const sa=m&&m.sa!==undefined?m.sa:"";const sb=m&&m.sb!==undefined?m.sb:"";const wa=m&&m.winner===a?" win":"";const wb=m&&m.winner===b?" win":"";const n=id&&id.charAt(0)==="R"?parseInt(id.slice(1)):0;const label=(v)=>v||(n?"Tim "+(n*2-1):"TBD");const labelB=(v)=>v||(n?"Tim "+(n*2):"TBD");return '<div class="match" data-match="'+id+'"><div class="team'+wa+'">'+label(a)+(sa!==""?'<span class="score">'+sa+'</span>':"")+'</div><div class="team'+wb+'">'+labelB(b)+(sb!==""?'<span class="score">'+sb+'</span>':"")+'</div></div>';}
+
+const $ = id =>
+  document.getElementById(id);
+
+
+let women = false;
+
+let menTeams =
+  Array(14).fill("");
+
+let womenTeams =
+  Array(4).fill("");
+
+let matches = {};
+
+
+/* =========================
+   MODE
+========================= */
+
+function setMode(admin){
+
+  document.body.className =
+    admin ? "is-admin" : "";
+
+}
+
+
+/* =========================
+   MATCH
+========================= */
+
+function match(
+  a="",
+  b="",
+  id=""
+){
+
+  const m =
+    id && matches[id]
+    ? matches[id]
+    : null;
+
+
+  const sa =
+    m && m.sa !== undefined
+    ? m.sa
+    : "";
+
+  const sb =
+    m && m.sb !== undefined
+    ? m.sb
+    : "";
+
+
+  const wa =
+    m && m.winner === a
+    ? " win"
+    : "";
+
+  const wb =
+    m && m.winner === b
+    ? " win"
+    : "";
+
+
+  let labelA = a;
+  let labelB = b;
+
+
+  /*
+    16 SLOT PUTRA
+
+    Slot 1  = Tim 1
+    Slot 2  = BYE
+    Slot 3  = Tim 2
+    Slot 4  = Tim 3
+    ...
+    Slot 15 = Tim 14
+    Slot 16 = BYE
+  */
+
+  if(
+    !women &&
+    id &&
+    id.startsWith("R")
+  ){
+
+    const n =
+      Number(id.substring(1));
+
+    const slots = [
+
+      "Tim 1",
+      "BYE",
+
+      "Tim 2",
+      "Tim 3",
+
+      "Tim 4",
+      "Tim 5",
+
+      "Tim 6",
+      "Tim 7",
+
+      "Tim 8",
+      "Tim 9",
+
+      "Tim 10",
+      "Tim 11",
+
+      "Tim 12",
+      "Tim 13",
+
+      "Tim 14",
+      "BYE"
+
+    ];
+
+
+    labelA =
+      labelA || slots[(n-1)*2];
+
+    labelB =
+      labelB || slots[(n-1)*2+1];
+
+  }
+
+
+  if(!labelA)
+    labelA = "TBD";
+
+  if(!labelB)
+    labelB = "TBD";
+
+
+  return `
+
+    <div
+      class="match"
+      data-match="${id}">
+
+      <div class="team${wa}">
+
+        ${labelA}
+
+        ${
+          sa !== ""
+          ? `<span class="score">${sa}</span>`
+          : ""
+        }
+
+      </div>
+
+
+      <div class="team${wb}">
+
+        ${labelB}
+
+        ${
+          sb !== ""
+          ? `<span class="score">${sb}</span>`
+          : ""
+        }
+
+      </div>
+
+    </div>
+
+  `;
+
+}
+
+
+/* =========================
+   PUTRA
+========================= */
+
 function initMen(){
- matches={};
- for(let i=1;i<=8;i++)matches["R"+i]={a:"",b:"",winner:"",sa:undefined,sb:undefined,round:"R16"};
- for(let i=1;i<=4;i++)matches["Q"+i]={a:"",b:"",winner:"",sa:undefined,sb:undefined,round:"QF"};
- for(let i=1;i<=2;i++)matches["S"+i]={a:"",b:"",winner:"",sa:undefined,sb:undefined,round:"SF"};
- matches.F={a:"",b:"",winner:"",sa:undefined,sb:undefined,round:"FINAL"};
- matches.T={a:"",b:"",winner:"",sa:undefined,sb:undefined,round:"THIRD PLACE"};
- const t=menTeams.slice();
- const slots=[t[0],"BYE",t[1],t[2],t[3],t[4],t[5],t[6],t[7],t[8],t[9],t[10],t[11],t[12],t[13],"BYE"];
- for(let i=0;i<8;i++){matches["R"+(i+1)].a=slots[i*2];matches["R"+(i+1)].b=slots[i*2+1];if(slots[i*2]==="BYE")matches["R"+(i+1)].winner=slots[i*2+1];if(slots[i*2+1]==="BYE")matches["R"+(i+1)].winner=slots[i*2];}
+
+  matches = {};
+
+
+  for(
+    let i=1;
+    i<=8;
+    i++
+  ){
+
+    matches["R"+i] = {
+
+      a:"",
+      b:"",
+      winner:"",
+
+      sa:undefined,
+      sb:undefined,
+
+      round:"ROUND OF 16"
+
+    };
+
+  }
+
+
+  for(
+    let i=1;
+    i<=4;
+    i++
+  ){
+
+    matches["Q"+i] = {
+
+      a:"",
+      b:"",
+      winner:"",
+
+      sa:undefined,
+      sb:undefined,
+
+      round:"QUARTER FINAL"
+
+    };
+
+  }
+
+
+  for(
+    let i=1;
+    i<=2;
+    i++
+  ){
+
+    matches["S"+i] = {
+
+      a:"",
+      b:"",
+      winner:"",
+
+      sa:undefined,
+      sb:undefined,
+
+      round:"SEMIFINAL"
+
+    };
+
+  }
+
+
+  matches.F = {
+
+    a:"",
+    b:"",
+    winner:"",
+
+    sa:undefined,
+    sb:undefined,
+
+    round:"GRAND FINAL"
+
+  };
+
+
+  matches.T = {
+
+    a:"",
+    b:"",
+    winner:"",
+
+    sa:undefined,
+    sb:undefined,
+
+    round:"THIRD PLACE"
+
+  };
+
 }
-function initWomen(){matches={S1:{a:womenTeams[0],b:womenTeams[1],winner:"",sa:undefined,sb:undefined,round:"SF"},S2:{a:womenTeams[2],b:womenTeams[3],winner:"",sa:undefined,sb:undefined,round:"SF"},F:{a:"",b:"",winner:"",sa:undefined,sb:undefined,round:"FINAL"}; if(!matches.S1.a&&matches.S1.b===""){}}
-function card(id){const m=matches[id];return match(m.a,m.b,id);}
+
+
+/* =========================
+   PUTRI
+========================= */
+
+function initWomen(){
+
+  matches = {
+
+    S1:{
+      a:"",
+      b:"",
+      winner:"",
+      sa:undefined,
+      sb:undefined,
+      round:"SEMIFINAL"
+    },
+
+    S2:{
+      a:"",
+      b:"",
+      winner:"",
+      sa:undefined,
+      sb:undefined,
+      round:"SEMIFINAL"
+    },
+
+    F:{
+      a:"",
+      b:"",
+      winner:"",
+      sa:undefined,
+      sb:undefined,
+      round:"GRAND FINAL"
+    }
+
+  };
+
+}
+
+
+/* =========================
+   CARD
+========================= */
+
+function card(id){
+
+  const m =
+    matches[id];
+
+  if(!m)
+    return "";
+
+  return match(
+    m.a,
+    m.b,
+    id
+  );
+
+}
+
+
+/* =========================
+   RENDER PUTRA
+========================= */
+
 function renderMen(){
- $("gameTitle").textContent="VOLI PUTRA";$("gameHeader").textContent="Voli Putra";
- $("bracket").innerHTML='<div class="round left"><h3>ROUND OF 16</h3>'+card("R1")+card("R2")+card("R3")+card("R4")+'</div><div class="round left"><h3>QUARTER FINAL</h3>'+card("Q1")+card("Q2")+'</div><div class="round left"><h3>SEMIFINAL</h3>'+card("S1")+'</div><div class="round center"><h3>GRAND FINAL</h3><div class="grandbox"><div class="grandtitle">GRAND FINAL</div>'+match(matches.F.a,matches.F.b,"F")+'<div class="champ">JUARA 1 • '+(matches.F.winner||"TBD")+'</div></div><div class="thirdbox"><div class="grandtitle">THIRD PLACE</div>'+match(matches.T.a,matches.T.b,"T")+'<div class="champ">JUARA 3 • '+(matches.T.winner||"TBD")+'</div></div></div><div class="round right"><h3>SEMIFINAL</h3>'+card("S2")+'</div><div class="round right"><h3>QUARTER FINAL</h3>'+card("Q3")+card("Q4")+'</div><div class="round right"><h3>ROUND OF 16</h3>'+card("R5")+card("R6")+card("R7")+card("R8")+'</div>';
+
+  $("gameTitle")
+    .textContent =
+    "VOLI PUTRA";
+
+  $("gameHeader")
+    .textContent =
+    "Voli Putra";
+
+
+  $("bracket").innerHTML = `
+
+    <div class="round left">
+
+      <h3>
+        ROUND OF 16
+      </h3>
+
+      ${card("R1")}
+      ${card("R2")}
+      ${card("R3")}
+      ${card("R4")}
+
+    </div>
+
+
+    <div class="round left">
+
+      <h3>
+        QUARTER FINAL
+      </h3>
+
+      ${card("Q1")}
+      ${card("Q2")}
+
+    </div>
+
+
+    <div class="round left">
+
+      <h3>
+        SEMIFINAL
+      </h3>
+
+      ${card("S1")}
+
+    </div>
+
+
+    <div class="round center">
+
+      <h3>
+        GRAND FINAL
+      </h3>
+
+      <div class="grandbox">
+
+        <div class="grandtitle">
+          GRAND FINAL
+        </div>
+
+        ${match(
+          matches.F.a,
+          matches.F.b,
+          "F"
+        )}
+
+        <div class="champ">
+          JUARA 1 •
+          ${matches.F.winner || "TBD"}
+        </div>
+
+      </div>
+
+
+      <div class="thirdbox">
+
+        <div class="grandtitle">
+          THIRD PLACE
+        </div>
+
+        ${match(
+          matches.T.a,
+          matches.T.b,
+          "T"
+        )}
+
+        <div class="champ">
+          JUARA 3 •
+          ${matches.T.winner || "TBD"}
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <div class="round right">
+
+      <h3>
+        SEMIFINAL
+      </h3>
+
+      ${card("S2")}
+
+    </div>
+
+
+    <div class="round right">
+
+      <h3>
+        QUARTER FINAL
+      </h3>
+
+      ${card("Q3")}
+      ${card("Q4")}
+
+    </div>
+
+
+    <div class="round right">
+
+      <h3>
+        ROUND OF 16
+      </h3>
+
+      ${card("R5")}
+      ${card("R6")}
+      ${card("R7")}
+      ${card("R8")}
+
+    </div>
+
+  `;
+
 }
+
+
+/* =========================
+   RENDER PUTRI
+========================= */
+
 function renderWomen(){
- $("gameTitle").textContent="VOLI PUTRI";$("gameHeader").textContent="Voli Putri";
- $("bracket").innerHTML='<div class="round left"><h3>SEMIFINAL</h3>'+card("S1")+card("S2")+'</div><div class="round center"><h3>GRAND FINAL</h3><div class="grandbox"><div class="grandtitle">GRAND FINAL</div>'+match(matches.F.a,matches.F.b,"F")+'<div class="champ">JUARA 1 • '+(matches.F.winner||"TBD")+'</div></div></div><div class="round right"><h3>RESULT</h3>'+match(matches.F.winner,"","WIN")+'</div>';
+
+  $("gameTitle")
+    .textContent =
+    "VOLI PUTRI";
+
+  $("gameHeader")
+    .textContent =
+    "Voli Putri";
+
+
+  $("bracket").innerHTML = `
+
+    <div class="round left">
+
+      <h3>
+        SEMIFINAL
+      </h3>
+
+      ${card("S1")}
+      ${card("S2")}
+
+    </div>
+
+
+    <div class="round center">
+
+      <h3>
+        GRAND FINAL
+      </h3>
+
+      <div class="grandbox">
+
+        <div class="grandtitle">
+          GRAND FINAL
+        </div>
+
+        ${match(
+          matches.F.a,
+          matches.F.b,
+          "F"
+        )}
+
+        <div class="champ">
+          JUARA 1 •
+          ${matches.F.winner || "TBD"}
+        </div>
+
+      </div>
+
+    </div>
+
+  `;
+
 }
+
+
+/* =========================
+   TEAM INPUT
+========================= */
+
 function buildInputs(){
- const count=women?4:14, data=women?womenTeams:menTeams;
- $("teamInputs").innerHTML=Array.from({length:count},(_,i)=>'<input data-team="'+i+'" placeholder="Tim '+(i+1)+'" value="'+(data[i]||"").replace(/"/g,"&quot;")+'">').join("");
+
+  const count =
+    women ? 4 : 14;
+
+  const data =
+    women
+    ? womenTeams
+    : menTeams;
+
+
+  $("teamInputs").innerHTML =
+    "";
+
+
+  for(
+    let i=0;
+    i<count;
+    i++
+  ){
+
+    const input =
+      document.createElement("input");
+
+    input.placeholder =
+      "Tim " + (i+1);
+
+    input.value =
+      data[i] || "";
+
+    $("teamInputs")
+      .appendChild(input);
+
+  }
+
 }
+
+
+/* =========================
+   SAVE TEAM
+========================= */
+
 function saveInputs(){
- const data=[...document.querySelectorAll("#teamInputs input")].map(x=>x.value.trim());
- if(women)womenTeams=data;else menTeams=data;
+
+  const data =
+    [
+      ...document.querySelectorAll(
+        "#teamInputs input"
+      )
+    ].map(
+      x => x.value.trim()
+    );
+
+
+  if(women)
+    womenTeams = data;
+  else
+    menTeams = data;
+
 }
-function buildMatchSelect(){const ids=Object.keys(matches);$("matchSelect").innerHTML=ids.map(id=>'<option value="'+id+'">'+id+" • "+matches[id].round+'</option>').join("");loadScore(ids[0]);}
-function loadScore(id){const m=matches[id];if(!m)return;$("matchSelect").value=id;$("scoreA").value=m.sa===undefined?0:m.sa;$("scoreB").value=m.sb===undefined?0:m.sb;}
-function saveScore(){const id=$("matchSelect").value,m=matches[id];if(!m)return;const a=Number($("scoreA").value),b=Number($("scoreB").value);if(a>2||b>2||a<0||b<0||a===b){alert("Skor harus 2–0 atau 2–1.");return;}if(a!==2&&b!==2){alert("Salah satu tim harus mencapai 2 set.");return;}m.sa=a;m.sb=b;m.winner=a>b?m.a:m.b;alert("Skor "+id+" disimpan: "+a+"–"+b);women?renderWomen():renderMen();}
-function switchMode(toWomen){
- saveInputs();women=toWomen;
- if(women)initWomen();else initMen();
- $("menMode").classList.toggle("active",!women);$("womenMode").classList.toggle("active",women);
- buildInputs();buildMatchSelect();women?renderWomen():renderMen();
+
+
+/* =========================
+   MATCH SELECT
+========================= */
+
+function buildMatchSelect(){
+
+  const ids =
+    Object.keys(matches);
+
+
+  $("matchSelect").innerHTML =
+    ids.map(id => `
+
+      <option value="${id}">
+        ${id} •
+        ${matches[id].round}
+      </option>
+
+    `).join("");
+
 }
-$("menMode").onclick=()=>switchMode(false);
-$("womenMode").onclick=()=>switchMode(true);
-$("generate").onclick=()=>{saveInputs();women?initWomen():initMen();buildMatchSelect();women?renderWomen():renderMen();alert("Bagan "+(women?"putri":"putra")+" sudah diperbarui.");};
-$("reset").onclick=()=>{if(!confirm("Reset semua nama tim?"))return;if(women)womenTeams=Array(4).fill("");else menTeams=Array(14).fill("");women?initWomen():initMen();buildInputs();buildMatchSelect();women?renderWomen():renderMen();};
-$("matchSelect").onchange=e=>loadScore(e.target.value);
-$("saveScore").onclick=saveScore;
-$("adminMode").onclick=()=>{const p=prompt("Masukkan password Admin");if(p==="SCC2026"){setMode("admin");buildInputs();}else if(p!==null)alert("Password salah.")};
-setMode("tv");initMen();buildInputs();buildMatchSelect();renderMen();
+
+
+/* =========================
+   SAVE SCORE
+========================= */
+
+function saveScore(){
+
+  const id =
+    $("matchSelect").value;
+
+  const m =
+    matches[id];
+
+  if(!m)
+    return;
+
+
+  const a =
+    Number(
+      $("scoreA").value
+    );
+
+  const b =
+    Number(
+      $("scoreB").value
+    );
+
+
+  if(
+    a === b ||
+    (a !== 2 && b !== 2)
+  ){
+
+    alert(
+      "Skor harus 2–0 atau 2–1."
+    );
+
+    return;
+
+  }
+
+
+  m.sa = a;
+  m.sb = b;
+
+
+  m.winner =
+    a > b
+    ? m.a
+    : m.b;
+
+
+  if(women)
+    renderWomen();
+  else
+    renderMen();
+
+}
+
+
+/* =========================
+   SWITCH
+========================= */
+
+function switchMode(
+  toWomen
+){
+
+  saveInputs();
+
+  women =
+    toWomen;
+
+
+  if(women)
+    initWomen();
+  else
+    initMen();
+
+
+  $("menMode")
+    .classList
+    .toggle(
+      "active",
+      !women
+    );
+
+  $("womenMode")
+    .classList
+    .toggle(
+      "active",
+      women
+    );
+
+
+  buildInputs();
+
+  buildMatchSelect();
+
+
+  if(women)
+    renderWomen();
+  else
+    renderMen();
+
+}
+
+
+/* =========================
+   BUTTONS
+========================= */
+
+$("menMode").onclick =
+  () => switchMode(false);
+
+
+$("womenMode").onclick =
+  () => switchMode(true);
+
+
+$("generate").onclick =
+  () => {
+
+    saveInputs();
+
+    if(women)
+      initWomen();
+    else
+      initMen();
+
+    buildInputs();
+    buildMatchSelect();
+
+    if(women)
+      renderWomen();
+    else
+      renderMen();
+
+  };
+
+
+$("reset").onclick =
+  () => {
+
+    if(
+      !confirm(
+        "Reset semua nama tim?"
+      )
+    )
+      return;
+
+
+    if(women)
+      womenTeams =
+        Array(4).fill("");
+    else
+      menTeams =
+        Array(14).fill("");
+
+
+    if(women)
+      initWomen();
+    else
+      initMen();
+
+
+    buildInputs();
+    buildMatchSelect();
+
+
+    if(women)
+      renderWomen();
+    else
+      renderMen();
+
+  };
+
+
+$("matchSelect").onchange =
+  () => {};
+
+
+$("saveScore").onclick =
+  saveScore;
+
+
+/* =========================
+   ADMIN
+========================= */
+
+$("adminMode").onclick =
+  () => {
+
+    const password =
+      prompt(
+        "Masukkan password Admin"
+      );
+
+
+    if(
+      password ===
+      "SCC2026"
+    ){
+
+      setMode(true);
+
+      buildInputs();
+
+    }
+
+    else if(
+      password !== null
+    ){
+
+      alert(
+        "Password salah."
+      );
+
+    }
+
+  };
+
+
+/* =========================
+   START
+========================= */
+
+setMode(false);
+
+initMen();
+
+buildInputs();
+
+buildMatchSelect();
+
+renderMen();
+
 })();
+
 </script>
+
 </body>
 </html>
