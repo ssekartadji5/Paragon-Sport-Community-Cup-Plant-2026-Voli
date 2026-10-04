@@ -626,6 +626,7 @@ function buildInputs(){
   const d=[...document.querySelectorAll("#teamInputs input")].map(x=>x.value.trim());
   if(women){
    womenTeams=d;
+   womenDraftDirty=true;
    if(matches.S1){matches.S1.a=d[0]||"Tim 1";matches.S1.b=d[1]||"Tim 2";}
    if(matches.S2){matches.S2.a=d[2]||"Tim 3";matches.S2.b=d[3]||"Tim 4";}
    renderWomen();buildMatchSelect();
@@ -681,6 +682,7 @@ async function loadDb(){
 function startRealtime(){
  if(!supabase||realtimeChannel)return;
  realtimeChannel=supabase.channel("volleyball-live").on("postgres_changes",{event:"*",schema:"public",table:"volleyball_matches"},payload=>{
+  if(women&&payload.new&&payload.new.division==="PUTRI"&&womenDraftDirty)return;
   if(payload.new)applyDbRow(payload.new);
   if(women)renderWomen();else renderMen();
   buildMatchSelect();
@@ -715,7 +717,8 @@ function saveScore(){
  women?renderWomen():renderMen();saveDbRows([id]);alert("Skor "+id+" disimpan: "+a+"–"+b);
 }
 async function switchMode(toWomen){
- saveInputs();women=toWomen;women?initWomen():initMen();
+ saveInputs();women=toWomen;
+ if(women)womenDraftDirty=false;women?initWomen():initMen();
  $("menMode").classList.toggle("active",!women);$("womenMode").classList.toggle("active",women);
  buildInputs();women?renderWomen():renderMen();buildMatchSelect();
  await loadDb();
