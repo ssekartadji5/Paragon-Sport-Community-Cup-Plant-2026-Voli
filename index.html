@@ -694,8 +694,13 @@ function loadScore(id){
  $("matchSelect").value=id;$("scoreA").value=m.sa??0;$("scoreB").value=m.sb??0;
 }
 function generateBracket(){
- saveInputs();women?initWomen():initMen();women?renderWomen():renderMen();buildMatchSelect();
- saveDbRows(women?["S1","S2"]:["R1","R2","R3","R4","R5","R6","R7","R8"]);
+ saveInputs();
+ if(women){
+  matches.S1.a=womenTeams[0]||"Tim 1";matches.S1.b=womenTeams[1]||"Tim 2";
+  matches.S2.a=womenTeams[2]||"Tim 3";matches.S2.b=womenTeams[3]||"Tim 4";
+  renderWomen();
+ }else{initMen();renderMen();}
+ buildMatchSelect();
 }
 function saveScore(){
  const id=$("matchSelect").value,m=matches[id];if(!m)return;
