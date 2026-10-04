@@ -215,6 +215,8 @@ header small{
 .match[data-match="Q4"]:after{content:"MATCH 12"}
 .match[data-match="S1"]:after{content:"MATCH 13"}
 .match[data-match="S2"]:after{content:"MATCH 14"}
+.match.women-match[data-match="S1"]:after{content:"MATCH 01"}
+.match.women-match[data-match="S2"]:after{content:"MATCH 02"}
 .match[data-match="F"]:after{content:"MATCH 15"}
 .match[data-match="T"]:after{content:"MATCH 16"}
 
@@ -640,16 +642,16 @@ function match(
 
 
   if(!labelA)
-    labelA = "TBD";
+    labelA = women && id === "S1" ? "Tim 1" : women && id === "S2" ? "Tim 3" : "TBD";
 
   if(!labelB)
-    labelB = "TBD";
+    labelB = women && id === "S1" ? "Tim 2" : women && id === "S2" ? "Tim 4" : "TBD";
 
 
   return `
 
     <div
-      class="match"
+      class="match${women && (id === "S1" || id === "S2") ? " women-match" : ""}"
       data-match="${id}">
 
       <div class="team${wa}">
