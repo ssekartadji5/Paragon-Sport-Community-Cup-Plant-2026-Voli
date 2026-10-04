@@ -700,10 +700,12 @@ function saveScore(){
  m.sa=a;m.sb=b;m.winner=a>b?m.a:m.b;
  women?renderWomen():renderMen();saveDbRows([id]);alert("Skor "+id+" disimpan: "+a+"–"+b);
 }
-function switchMode(toWomen){
+async function switchMode(toWomen){
  saveInputs();women=toWomen;women?initWomen():initMen();
  $("menMode").classList.toggle("active",!women);$("womenMode").classList.toggle("active",women);
- buildInputs();buildMatchSelect();women?renderWomen():renderMen();loadDb();
+ buildInputs();women?renderWomen():renderMen();buildMatchSelect();
+ await loadDb();
+ buildInputs();women?renderWomen():renderMen();buildMatchSelect();
 }
 function setAdmin(){
  const p=prompt("Masukkan password Admin");
