@@ -731,7 +731,7 @@ $("generate").onclick=async()=>{
  generateBracket();
  const ok=await saveDbRows(women?["S1","S2"]:["R1","R2","R3","R4","R5","R6","R7","R8"]);
  if(!ok){alert("Gagal menyimpan bagan. Cek koneksi Supabase.");return;}
- if(women){initWomen();renderWomen();}else{initMen();renderMen();}
+ if(women){renderWomen();}else{initMen();renderMen();}
  buildMatchSelect();
  alert("Bagan "+(women?"putri":"putra")+" sudah diperbarui.");
 };
