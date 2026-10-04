@@ -64,7 +64,7 @@ function makeMatch(id,a,b,scoreA,scoreB,winner){
  const wb=winner&&winner===b?" winner":"";
  const ba=a==="BYE"?" bye":"";
  const bb=b==="BYE"?" bye":"";
- const num=id==="F"?"15":id&&id[0]==="R"?String(Number(id.slice(1))).padStart(2,"0"):id&&id[0]==="Q"?String(8+Number(id.slice(1))).padStart(2,"0"):id&&id[0]==="S"?String(12+Number(id.slice(1))).padStart(2,"0"):"";
+ const num=women?(id==="F"?"03":id&&id[0]==="S"?String(1+Number(id.slice(1))).padStart(2,"0"):""):(id==="F"?"15":id&&id[0]==="R"?String(Number(id.slice(1))).padStart(2,"0"):id&&id[0]==="Q"?String(8+Number(id.slice(1))).padStart(2,"0"):id&&id[0]==="S"?String(12+Number(id.slice(1))).padStart(2,"0"):"");
  return "<div class='match-wrap'><div class='match' data-id='"+id+"'><div class='team"+ba+wa+"'>"+(a||"TBD")+sa+"</div><div class='team"+bb+wb+"'>"+(b||"TBD")+sb+"</div></div>"+(num?"<div class='match-id'>MATCH "+num+"</div>":"")+"</div>";
 }
 function initMen(){
