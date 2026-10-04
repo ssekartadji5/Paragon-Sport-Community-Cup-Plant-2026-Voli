@@ -560,7 +560,7 @@ let women=false;
 let menTeams=Array(14).fill(""),womenTeams=Array(4).fill(""),matches={};
 const SUPABASE_URL="https://tyuswzuswdhavbrtuzzd.supabase.co";
 const SUPABASE_KEY="sb_publishable_o_y4SJPaiNhjtrt5y-ruNA_izK0V7Bu";
-let supabase=null,realtimeChannel=null;
+let supabase=null,realtimeChannel=null,womenDraftDirty=false;
 try{if(window.supabase&&window.supabase.createClient)supabase=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);}catch(e){console.warn(e)}
 
 function match(a="",b="",id=""){
@@ -673,6 +673,7 @@ async function loadDb(){
  if(!supabase)return;
  const {data,error}=await supabase.from("volleyball_matches").select("*").eq("division",women?"PUTRI":"PUTRA");
  if(error){console.error("Supabase load:",error);return}
+ if(women&&womenDraftDirty)return;
  data.forEach(applyDbRow);
  if(women){initWomen();data.forEach(applyDbRow);renderWomen()}else{initMen();data.forEach(applyDbRow);renderMen()}
  buildMatchSelect();
