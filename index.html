@@ -1091,6 +1091,24 @@ function buildInputs(){
     $("teamInputs")
       .appendChild(input);
 
+    input.oninput = () => {
+
+      saveInputs();
+
+      if(women)
+        initWomen();
+      else
+        initMen();
+
+      if(women)
+        renderWomen();
+      else
+        renderMen();
+
+      buildMatchSelect();
+
+    };
+
   }
 
 }
