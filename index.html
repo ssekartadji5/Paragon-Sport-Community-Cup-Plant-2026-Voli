@@ -448,6 +448,7 @@ header small{
 
 }
 </style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 
 <body>
@@ -552,695 +553,177 @@ Format pertandingan: Best of 3 — tim pertama yang menang 2 set menjadi pemenan
 </main>
 
 <script>
-
 (function(){
-
 const $=id=>document.getElementById(id);
-
 let women=false;
-
-let menTeams=Array(14).fill("");
-let womenTeams=Array(4).fill("");
-
-let matches={};
-let currentMatch=null;
-
-function setMode(mode){
-
-document.body.className=
-mode==="tv"?"is-tv":"is-admin";
-
-$("adminMode").classList.toggle(
-"active",
-mode==="admin"
-);
-
-}
+let menTeams=Array(14).fill(""),womenTeams=Array(4).fill(""),matches={};
+const SUPABASE_URL="https://tyuswzuswdhavbrtuzzd.supabase.co";
+const SUPABASE_KEY="sb_publishable_o_y4SJPaiNhjtrt5y-ruNA_izK0V7Bu";
+let supabase=null,realtimeChannel=null;
+try{if(window.supabase&&window.supabase.createClient)supabase=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);}catch(e){console.warn(e)}
 
 function match(a="",b="",id=""){
-
-const m=id&&matches[id]?matches[id]:null;
-
-const sa=m&&m.sa!==undefined?m.sa:"";
-const sb=m&&m.sb!==undefined?m.sb:"";
-
-const wa=m&&m.winner===a?" win":"";
-const wb=m&&m.winner===b?" win":"";
-
-const n=id&&id.charAt(0)==="R"
-?parseInt(id.slice(1))
-:0;
-
-const label=(v)=>
-v ||
-(
-n
-?"Tim "+(n*2-1)
-:id==="S1"
-?"Tim 1"
-:id==="S2"
-?"Tim 3"
-:id==="F"
-?"TBD"
-:"TBD"
-);
-
-const labelB=(v)=>
-v ||
-(
-n
-?"Tim "+(n*2)
-:id==="S1"
-?"Tim 2"
-:id==="S2"
-?"Tim 4"
-:id==="F"
-?"TBD"
-:"TBD"
-);
-
-const womenClass=
-women&&(id==="S1"||id==="S2")
-?" women-match"
-:"";
-
-return '<div class="match'+womenClass+'" data-match="'+id+'">'+
-'<div class="team'+wa+'">'+
-label(a)+
-(sa!==""?'<span class="score">'+sa+'</span>':"")+
-'</div>'+
-'<div class="team'+wb+'">'+
-labelB(b)+
-(sb!==""?'<span class="score">'+sb+'</span>':"")+
-'</div>'+
-'</div>';
-
+ const m=matches[id],sa=m&&m.sa!==undefined?m.sa:"",sb=m&&m.sb!==undefined?m.sb:"";
+ const wa=m&&m.winner===a?" win":"",wb=m&&m.winner===b?" win":"";
+ const n=id&&id[0]==="R"?parseInt(id.slice(1)):0;
+ const la=v=>v||(n?"Tim "+(n*2-1):id==="S1"?"Tim 1":id==="S2"?"Tim 3":"TBD");
+ const lb=v=>v||(n?"Tim "+(n*2):id==="S1"?"Tim 2":id==="S2"?"Tim 4":"TBD");
+ const wc=women&&(id==="S1"||id==="S2")?" women-match":"";
+ return '<div class="match'+wc+'" data-match="'+id+'"><div class="team'+wa+'">'+la(a)+(sa!==""?'<span class="score">'+sa+'</span>':"")+'</div><div class="team'+wb+'">'+lb(b)+(sb!==""?'<span class="score">'+sb+'</span>':"")+'</div></div>';
 }
-
 function initMen(){
-
-matches={};
-
-for(let i=1;i<=8;i++)
-
-matches["R"+i]={
-a:"",
-b:"",
-winner:"",
-sa:undefined,
-sb:undefined,
-round:"R16"
-};
-
-for(let i=1;i<=4;i++)
-
-matches["Q"+i]={
-a:"",
-b:"",
-winner:"",
-sa:undefined,
-sb:undefined,
-round:"QF"
-};
-
-for(let i=1;i<=2;i++)
-
-matches["S"+i]={
-a:"",
-b:"",
-winner:"",
-sa:undefined,
-sb:undefined,
-round:"SF"
-};
-
-matches.F={
-a:"",
-b:"",
-winner:"",
-sa:undefined,
-sb:undefined,
-round:"FINAL"
-};
-
-matches.T={
-a:"",
-b:"",
-winner:"",
-sa:undefined,
-sb:undefined,
-round:"THIRD PLACE"
-};
-
-const t=menTeams.slice();
-
-const slots=[
-t[0],
-"BYE",
-t[1],
-t[2],
-t[3],
-t[4],
-t[5],
-t[6],
-t[7],
-t[8],
-t[9],
-t[10],
-t[11],
-t[12],
-t[13],
-"BYE"
-];
-
-for(let i=0;i<8;i++){
-
-matches["R"+(i+1)].a=
-slots[i*2];
-
-matches["R"+(i+1)].b=
-slots[i*2+1];
-
-if(slots[i*2]==="BYE")
-matches["R"+(i+1)].winner=
-slots[i*2+1];
-
-if(slots[i*2+1]==="BYE")
-matches["R"+(i+1)].winner=
-slots[i*2];
-
+ matches={};
+ for(let i=1;i<=8;i++)matches["R"+i]={a:"",b:"",winner:"",sa:undefined,sb:undefined,round:"R16"};
+ for(let i=1;i<=4;i++)matches["Q"+i]={a:"",b:"",winner:"",sa:undefined,sb:undefined,round:"QF"};
+ for(let i=1;i<=2;i++)matches["S"+i]={a:"",b:"",winner:"",sa:undefined,sb:undefined,round:"SF"};
+ matches.F={a:"",b:"",winner:"",sa:undefined,sb:undefined,round:"FINAL"};
+ matches.T={a:"",b:"",winner:"",sa:undefined,sb:undefined,round:"THIRD PLACE"};
+ const t=menTeams.slice();
+ const slots=[t[0],"BYE",t[1],t[2],t[3],t[4],t[5],t[6],t[7],t[8],t[9],t[10],t[11],t[12],t[13],"BYE"];
+ for(let i=0;i<8;i++){
+  matches["R"+(i+1)].a=slots[i*2];matches["R"+(i+1)].b=slots[i*2+1];
+  if(slots[i*2]==="BYE")matches["R"+(i+1)].winner=slots[i*2+1];
+  if(slots[i*2+1]==="BYE")matches["R"+(i+1)].winner=slots[i*2];
+ }
 }
-
-}
-
 function initWomen(){
-
-matches={
-
-S1:{
-a:womenTeams[0]||"Tim 1",
-b:womenTeams[1]||"Tim 2",
-winner:"",
-sa:undefined,
-sb:undefined,
-round:"SF"
-},
-
-S2:{
-a:womenTeams[2]||"Tim 3",
-b:womenTeams[3]||"Tim 4",
-winner:"",
-sa:undefined,
-sb:undefined,
-round:"SF"
-},
-
-F:{
-a:"",
-b:"",
-winner:"",
-sa:undefined,
-sb:undefined,
-round:"FINAL"
+ matches={
+  S1:{a:womenTeams[0]||"Tim 1",b:womenTeams[1]||"Tim 2",winner:"",sa:undefined,sb:undefined,round:"SF"},
+  S2:{a:womenTeams[2]||"Tim 3",b:womenTeams[3]||"Tim 4",winner:"",sa:undefined,sb:undefined,round:"SF"},
+  F:{a:"",b:"",winner:"",sa:undefined,sb:undefined,round:"FINAL"}
+ };
 }
-
-};
-
-}
-
-function card(id){
-
-const m=matches[id];
-
-return match(
-m.a,
-m.b,
-id
-);
-
-}
-
+function card(id){const m=matches[id];return match(m.a,m.b,id)}
 function renderMen(){
-
-$("gameTitle").textContent="VOLI PUTRA";
-$("gameHeader").textContent="Voli Putra";
-
-$("bracket").innerHTML=
-
-'<div class="round left">'+
-'<h3>ROUND OF 16</h3>'+
-card("R1")+
-card("R2")+
-card("R3")+
-card("R4")+
-'</div>'+
-
-'<div class="round left">'+
-'<h3>QUARTER FINAL</h3>'+
-card("Q1")+
-card("Q2")+
-'</div>'+
-
-'<div class="round left">'+
-'<h3>SEMIFINAL</h3>'+
-card("S1")+
-'</div>'+
-
-'<div class="round center">'+
-
-'<h3>GRAND FINAL</h3>'+
-
-'<div class="grandbox">'+
-
-'<div class="grandtitle">
-GRAND FINAL
-</div>'+
-
-match(
-matches.F.a,
-matches.F.b,
-"F"
-)+
-
-'<div class="champ">
-JUARA 1 • '+
-(matches.F.winner||"TBD")+
-'</div>'+
-
-'</div>'+
-
-'<div class="thirdbox">'+
-
-'<div class="grandtitle">
-THIRD PLACE
-</div>'+
-
-match(
-matches.T.a,
-matches.T.b,
-"T"
-)+
-
-'<div class="champ">
-JUARA 3 • '+
-(matches.T.winner||"TBD")+
-'</div>'+
-
-'</div>'+
-
-'</div>'+
-
-'<div class="round right">'+
-'<h3>SEMIFINAL</h3>'+
-card("S2")+
-'</div>'+
-
-'<div class="round right">'+
-'<h3>QUARTER FINAL</h3>'+
-card("Q3")+
-card("Q4")+
-'</div>'+
-
-'<div class="round right">'+
-'<h3>ROUND OF 16</h3>'+
-card("R5")+
-card("R6")+
-card("R7")+
-card("R8")+
-'</div>';
-
+ $("gameTitle").textContent="VOLI PUTRA";$("gameHeader").textContent="Voli Putra";
+ $("bracket").innerHTML=
+ '<div class="round left"><h3>ROUND OF 16</h3>'+card("R1")+card("R2")+card("R3")+card("R4")+'</div>'+
+ '<div class="round left"><h3>QUARTER FINAL</h3>'+card("Q1")+card("Q2")+'</div>'+
+ '<div class="round left"><h3>SEMIFINAL</h3>'+card("S1")+'</div>'+
+ '<div class="round center"><h3>GRAND FINAL</h3><div class="grandbox"><div class="grandtitle">GRAND FINAL</div>'+
+ match(matches.F.a,matches.F.b,"F")+'<div class="champ">JUARA 1 • '+(matches.F.winner||"TBD")+'</div></div>'+
+ '<div class="thirdbox"><div class="grandtitle">THIRD PLACE</div>'+match(matches.T.a,matches.T.b,"T")+
+ '<div class="champ">JUARA 3 • '+(matches.T.winner||"TBD")+'</div></div></div>'+
+ '<div class="round right"><h3>SEMIFINAL</h3>'+card("S2")+'</div>'+
+ '<div class="round right"><h3>QUARTER FINAL</h3>'+card("Q3")+card("Q4")+'</div>'+
+ '<div class="round right"><h3>ROUND OF 16</h3>'+card("R5")+card("R6")+card("R7")+card("R8")+'</div>';
 }
-
 function renderWomen(){
-
-$("gameTitle").textContent="VOLI PUTRI";
-$("gameHeader").textContent="Voli Putri";
-
-document.querySelector(".hero h2").textContent=
-"VOLI PUTRI";
-
-$("bracket").innerHTML=
-
-'<div class="round left">'+
-card("S1")+
-card("S2")+
-'</div>'+
-
-'<div class="round center">'+
-
-'<h3>GRAND FINAL</h3>'+
-
-'<div class="grandbox">'+
-
-'<div class="grandtitle">
-GRAND FINAL
-</div>'+
-
-match(
-matches.F.a,
-matches.F.b,
-"F"
-)+
-
-'<div class="champ">
-JUARA 1 • '+
-(matches.F.winner||"TBD")+
-'</div>'+
-
-'</div>'+
-
-'</div>'+
-
-'<div class="round right">'+
-
-'<h3>RESULT</h3>'+
-
-match(
-matches.F.winner,
-"",
-"WIN"
-)+
-
-'</div>';
-
+ $("gameTitle").textContent="VOLI PUTRI";$("gameHeader").textContent="Voli Putri";
+ document.querySelector(".hero h2").textContent="VOLI PUTRI";
+ $("bracket").innerHTML=
+ '<div class="round left">'+card("S1")+card("S2")+'</div>'+
+ '<div class="round center"><h3>GRAND FINAL</h3><div class="grandbox"><div class="grandtitle">GRAND FINAL</div>'+
+ match(matches.F.a,matches.F.b,"F")+'<div class="champ">JUARA 1 • '+(matches.F.winner||"TBD")+'</div></div></div>';
 }
-
 function buildInputs(){
-
-const count=
-women?4:14;
-
-const data=
-women?womenTeams:menTeams;
-
-$("teamInputs").innerHTML=
-
-Array.from(
-{length:count},
-(_,i)=>
-
-'<input data-team="'+i+
-'" placeholder="Tim '+(i+1)+
-'" value="'+
-(data[i]||"")
-.replace(/"/g,"&quot;")+
-'">'
-
-).join("");
-
-document
-.querySelectorAll("#teamInputs input")
-.forEach(x=>{
-
-x.oninput=()=>{
-
-saveInputs();
-
-if(women)
-initWomen();
-else
-initMen();
-
-if(women)
-renderWomen();
-else
-renderMen();
-
-buildMatchSelect();
-
-};
-
-});
-
+ const count=women?4:14,data=women?womenTeams:menTeams;
+ $("teamInputs").innerHTML=Array.from({length:count},(_,i)=>'<input data-team="'+i+'" placeholder="Tim '+(i+1)+'" value="'+(data[i]||"").replace(/"/g,"&quot;")+'">').join("");
+ document.querySelectorAll("#teamInputs input").forEach(x=>x.oninput=()=>{
+  const d=[...document.querySelectorAll("#teamInputs input")].map(x=>x.value.trim());
+  if(women)womenTeams=d;else menTeams=d;
+ });
 }
-
 function saveInputs(){
-
-const data=
-[...document.querySelectorAll("#teamInputs input")]
-.map(x=>x.value.trim());
-
-if(women)
-womenTeams=data;
-else
-menTeams=data;
-
+ const d=[...document.querySelectorAll("#teamInputs input")].map(x=>x.value.trim());
+ if(women)womenTeams=d;else menTeams=d;
 }
-
-function generateBracket(){
-
-const data=
-[...document.querySelectorAll("#teamInputs input")]
-.map(x=>x.value.trim());
-
-if(women)
-womenTeams=data;
-else
-menTeams=data;
-
-if(women){
-
-initWomen();
-renderWomen();
-
-}else{
-
-initMen();
-renderMen();
-
+function matchNumber(id){if(women)return id==="S1"?1:id==="S2"?2:3;return {R1:1,R2:2,R3:3,R4:4,R5:5,R6:6,R7:7,R8:8,Q1:9,Q2:10,Q3:11,Q4:12,S1:13,S2:14,F:15,T:16}[id]||0}
+function dbRows(){
+ return Object.keys(matches).map(id=>{const m=matches[id];return{id:(women?"PUTRI-":"PUTRA-")+id,division:women?"PUTRI":"PUTRA",round:m.round,match_number:matchNumber(id),team_a:m.a||"",team_b:m.b||"",score_a:m.sa??0,score_b:m.sb??0,winner:m.winner||"",status:m.winner?"finished":"pending",updated_at:new Date().toISOString()}})
 }
-
-buildMatchSelect();
-
+async function saveDbRows(ids){
+ if(!supabase)return;
+ const rows=dbRows().filter(r=>!ids||ids.includes(r.id.split("-").slice(1).join("-")));
+ if(!rows.length)return;
+ const {error}=await supabase.from("volleyball_matches").upsert(rows,{onConflict:"id"});
+ if(error)console.error("Supabase save:",error);
 }
-
+function applyDbRow(row){
+ const prefix=row.division==="PUTRI"?"PUTRI-":"PUTRA-";
+ if(!row.id.startsWith(prefix))return;
+ const id=row.id.slice(prefix.length);
+ if(!matches[id])return;
+ if(row.team_a)matches[id].a=row.team_a;
+ if(row.team_b)matches[id].b=row.team_b;
+ if(row.score_a!==null&&row.score_a!==undefined)matches[id].sa=row.score_a;
+ if(row.score_b!==null&&row.score_b!==undefined)matches[id].sb=row.score_b;
+ if(row.winner)matches[id].winner=row.winner;
+ if(row.division==="PUTRA"&&/^R[1-8]$/.test(id)){
+  const n=Number(id.slice(1))-1,slots=[[0,1],[2,3],[4,5],[6,7],[8,9],[10,11],[12,13],[14,15]][n];
+  if(row.team_a)menTeams[slots[0]]=row.team_a;
+  if(row.team_b&&row.team_b!=="BYE")menTeams[slots[1]]=row.team_b;
+ }
+ if(row.division==="PUTRI"&&(id==="S1"||id==="S2")){
+  const n=id==="S1"?0:2;
+  if(row.team_a)womenTeams[n]=row.team_a;
+  if(row.team_b)womenTeams[n+1]=row.team_b;
+ }
+}
+async function loadDb(){
+ if(!supabase)return;
+ const {data,error}=await supabase.from("volleyball_matches").select("*").eq("division",women?"PUTRI":"PUTRA");
+ if(error){console.error("Supabase load:",error);return}
+ data.forEach(applyDbRow);
+ if(women){initWomen();data.forEach(applyDbRow);renderWomen()}else{initMen();data.forEach(applyDbRow);renderMen()}
+ buildMatchSelect();
+}
+function startRealtime(){
+ if(!supabase||realtimeChannel)return;
+ realtimeChannel=supabase.channel("volleyball-live").on("postgres_changes",{event:"*",schema:"public",table:"volleyball_matches"},payload=>{
+  if(payload.new)applyDbRow(payload.new);
+  if(women)renderWomen();else renderMen();
+  buildMatchSelect();
+  $("liveBadge").style.display="block";
+ }).subscribe(status=>{$("liveBadge").style.display=status==="SUBSCRIBED"?"block":"none"});
+}
 function buildMatchSelect(){
-
-const ids=
-Object.keys(matches);
-
-$("matchSelect").innerHTML=
-
-ids.map(id=>
-
-'<option value="'+id+'">'+
-id+
-" • "+
-matches[id].round+
-'</option>'
-
-).join("");
-
-loadScore(ids[0]);
-
+ const ids=Object.keys(matches);
+ $("matchSelect").innerHTML=ids.map(id=>'<option value="'+id+'">'+id+" • "+matches[id].round+'</option>').join("");
+ if(ids[0])loadScore(ids[0]);
 }
-
 function loadScore(id){
-
-const m=matches[id];
-
-if(!m)return;
-
-$("matchSelect").value=id;
-
-$("scoreA").value=
-m.sa===undefined?0:m.sa;
-
-$("scoreB").value=
-m.sb===undefined?0:m.sb;
-
+ const m=matches[id];if(!m)return;
+ $("matchSelect").value=id;$("scoreA").value=m.sa??0;$("scoreB").value=m.sb??0;
 }
-
+function generateBracket(){
+ saveInputs();women?initWomen():initMen();women?renderWomen():renderMen();buildMatchSelect();
+ saveDbRows(women?["S1","S2"]:["R1","R2","R3","R4","R5","R6","R7","R8"]);
+}
 function saveScore(){
-
-const id=
-$("matchSelect").value;
-
-const m=
-matches[id];
-
-if(!m)return;
-
-const a=
-Number($("scoreA").value);
-
-const b=
-Number($("scoreB").value);
-
-if(
-a>2||
-b>2||
-a<0||
-b<0||
-a===b
-){
-
-alert(
-"Skor harus 2–0 atau 2–1."
-);
-
-return;
-
+ const id=$("matchSelect").value,m=matches[id];if(!m)return;
+ const a=Number($("scoreA").value),b=Number($("scoreB").value);
+ if((a===2&&b===2)||a===b||a>2||b>2){alert("Skor harus 2–0 atau 2–1.");return}
+ if(a!==2&&b!==2){alert("Salah satu tim harus mencapai 2 set.");return}
+ if(!m.a||!m.b||m.a==="BYE"||m.b==="BYE"){alert("Match ini belum memiliki dua tim.");return}
+ m.sa=a;m.sb=b;m.winner=a>b?m.a:m.b;
+ women?renderWomen():renderMen();saveDbRows([id]);alert("Skor "+id+" disimpan: "+a+"–"+b);
 }
-
-if(
-a!==2&&
-b!==2
-){
-
-alert(
-"Salah satu tim harus mencapai 2 set."
-);
-
-return;
-
-}
-
-m.sa=a;
-m.sb=b;
-
-m.winner=
-a>b
-?m.a
-:m.b;
-
-alert(
-"Skor "+
-id+
-" disimpan: "+
-a+
-"–"+
-b
-);
-
-if(women)
-renderWomen();
-else
-renderMen();
-
-}
-
 function switchMode(toWomen){
-
-saveInputs();
-
-women=toWomen;
-
-if(women)
-initWomen();
-else
-initMen();
-
-$("menMode").classList.toggle(
-"active",
-!women
-);
-
-$("womenMode").classList.toggle(
-"active",
-women
-);
-
-buildInputs();
-
-buildMatchSelect();
-
-if(women)
-renderWomen();
-else
-renderMen();
-
+ saveInputs();women=toWomen;women?initWomen():initMen();
+ $("menMode").classList.toggle("active",!women);$("womenMode").classList.toggle("active",women);
+ buildInputs();buildMatchSelect();women?renderWomen():renderMen();loadDb();
 }
-
-$("menMode").onclick=
-()=>switchMode(false);
-
-$("womenMode").onclick=
-()=>switchMode(true);
-
-$("generate").onclick=
-()=>{
-generateBracket();
-
-alert(
-"Bagan "+
-(women?"putri":"putra")+
-" sudah diperbarui."
-);
-
-};
-
-$("reset").onclick=
-()=>{
-
-if(
-!confirm(
-"Reset semua nama tim?"
-)
-)return;
-
-if(women)
-womenTeams=Array(4).fill("");
-else
-menTeams=Array(14).fill("");
-
-if(women)
-initWomen();
-else
-initMen();
-
-buildInputs();
-
-buildMatchSelect();
-
-if(women)
-renderWomen();
-else
-renderMen();
-
-};
-
-$("matchSelect").onchange=
-e=>loadScore(e.target.value);
-
-$("saveScore").onclick=
-saveScore;
-
-$("adminMode").onclick=
-()=>{
-
-const p=
-prompt(
-"Masukkan password Admin"
-);
-
-if(p==="SCC2026"){
-
-setMode("admin");
-buildInputs();
-
-}else if(p!==null){
-
-alert(
-"Password salah."
-);
-
+function setAdmin(){
+ const p=prompt("Masukkan password Admin");
+ if(p==="SCC2026")document.body.className="is-admin";
+ else if(p!==null)alert("Password salah.");
 }
-
+$("menMode").onclick=()=>switchMode(false);
+$("womenMode").onclick=()=>switchMode(true);
+$("generate").onclick=()=>{generateBracket();alert("Bagan "+(women?"putri":"putra")+" sudah diperbarui.")};
+$("reset").onclick=async()=>{
+ if(!confirm("Reset semua nama tim?"))return;
+ if(women)womenTeams=Array(4).fill("");else menTeams=Array(14).fill("");
+ women?initWomen():initMen();buildInputs();buildMatchSelect();women?renderWomen():renderMen();
+ await saveDbRows();
 };
-
-setMode("tv");
-
-initMen();
-
-buildInputs();
-
-buildMatchSelect();
-
-renderMen();
-
+$("matchSelect").onchange=e=>loadScore(e.target.value);
+$("saveScore").onclick=saveScore;
+$("adminMode").onclick=setAdmin;
+document.body.className="is-tv";
+initMen();buildInputs();buildMatchSelect();renderMen();loadDb();startRealtime();
 })();
-
 </script>
 
 </body>
