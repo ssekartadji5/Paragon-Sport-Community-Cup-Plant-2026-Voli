@@ -647,8 +647,8 @@ function applyDbRow(row){
  if(!matches[id])return;
  if(row.team_a)matches[id].a=row.team_a;
  if(row.team_b)matches[id].b=row.team_b;
- if(row.score_a!==null&&row.score_a!==undefined)matches[id].sa=row.score_a;
- if(row.score_b!==null&&row.score_b!==undefined)matches[id].sb=row.score_b;
+ if(row.score_a!==null&&row.score_a!==undefined&&row.winner)matches[id].sa=row.score_a;
+ if(row.score_b!==null&&row.score_b!==undefined&&row.winner)matches[id].sb=row.score_b;
  if(row.winner)matches[id].winner=row.winner;
  if(row.division==="PUTRA"&&/^R[1-8]$/.test(id)){
   const n=Number(id.slice(1))-1,slots=[[0,1],[2,3],[4,5],[6,7],[8,9],[10,11],[12,13],[14,15]][n];
@@ -712,7 +712,7 @@ function setAdmin(){
 }
 $("menMode").onclick=()=>switchMode(false);
 $("womenMode").onclick=()=>switchMode(true);
-$("generate").onclick=()=>{generateBracket();alert("Bagan "+(women?"putri":"putra")+" sudah diperbarui.")};
+$("generate").onclick=async()=>{generateBracket();await saveDbRows(women?["S1","S2"]:["R1","R2","R3","R4","R5","R6","R7","R8"]);alert("Bagan "+(women?"putri":"putra")+" sudah diperbarui.")};
 $("reset").onclick=async()=>{
  if(!confirm("Reset semua nama tim?"))return;
  if(women)womenTeams=Array(4).fill("");else menTeams=Array(14).fill("");
