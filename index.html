@@ -163,17 +163,18 @@ header small{
 
 .rounds{
   display:flex;
-  gap:24px;
+  gap:10px;
   width:100%;
   height:650px;
-  padding:18px 10px
+  padding:18px 10px;
+  overflow:hidden
 }
 
 .round{
   position:relative;
   display:flex;
-  flex:0 0 150px;
-  min-width:150px;
+  flex:1 1 0;
+  min-width:0;
   flex-direction:column;
   height:100%;
   padding-top:30px;
@@ -566,8 +567,8 @@ function match(a="",b="",id=""){
  const m=matches[id],sa=m&&m.sa!==undefined?m.sa:"",sb=m&&m.sb!==undefined?m.sb:"";
  const wa=m&&m.winner===a?" win":"",wb=m&&m.winner===b?" win":"";
  const n=id&&id[0]==="R"?parseInt(id.slice(1)):0;
- const la=v=>v||(n?"Tim "+(n*2-1):id==="S1"?"Tim 1":id==="S2"?"Tim 3":"TBD");
- const lb=v=>v||(n?"Tim "+(n*2):id==="S1"?"Tim 2":id==="S2"?"Tim 4":"TBD");
+ const la=v=>v||(women&&(id==="S1"||id==="S2")?"TBD":(n?"Tim "+(n*2-1):"TBD"));
+ const lb=v=>v||(women&&(id==="S1"||id==="S2")?"TBD":(n?"Tim "+(n*2):"TBD"));
  const wc=women&&(id==="S1"||id==="S2")?" women-match":"";
  return '<div class="match'+wc+'" data-match="'+id+'"><div class="team'+wa+'">'+la(a)+(sa!==""?'<span class="score">'+sa+'</span>':"")+'</div><div class="team'+wb+'">'+lb(b)+(sb!==""?'<span class="score">'+sb+'</span>':"")+'</div></div>';
 }
@@ -588,8 +589,8 @@ function initMen(){
 }
 function initWomen(){
  matches={
-  S1:{a:womenTeams[0]||"Tim 1",b:womenTeams[1]||"Tim 2",winner:"",sa:undefined,sb:undefined,round:"SF"},
-  S2:{a:womenTeams[2]||"Tim 3",b:womenTeams[3]||"Tim 4",winner:"",sa:undefined,sb:undefined,round:"SF"},
+  S1:{a:womenTeams[0]||"",b:womenTeams[1]||"",winner:"",sa:undefined,sb:undefined,round:"SF"},
+  S2:{a:womenTeams[2]||"",b:womenTeams[3]||"",winner:"",sa:undefined,sb:undefined,round:"SF"},
   F:{a:"",b:"",winner:"",sa:undefined,sb:undefined,round:"FINAL"}
  };
 }
@@ -621,7 +622,7 @@ function buildInputs(){
  $("teamInputs").innerHTML=Array.from({length:count},(_,i)=>'<input data-team="'+i+'" placeholder="Tim '+(i+1)+'" value="'+(data[i]||"").replace(/"/g,"&quot;")+'">').join("");
  document.querySelectorAll("#teamInputs input").forEach(x=>x.oninput=()=>{
   const d=[...document.querySelectorAll("#teamInputs input")].map(x=>x.value.trim());
-  if(women)womenTeams=d;else menTeams=d;
+  if(women){womenTeams=d;initWomen();renderWomen();buildMatchSelect();}else menTeams=d;
  });
 }
 function saveInputs(){
