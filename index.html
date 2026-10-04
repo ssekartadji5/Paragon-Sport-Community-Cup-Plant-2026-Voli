@@ -610,6 +610,8 @@ function renderMen(){
  '<div class="round right"><h3>ROUND OF 16</h3>'+card("R5")+card("R6")+card("R7")+card("R8")+'</div>';
 }
 function renderWomen(){
+ matches.S1.a=womenTeams[0]||"Tim 1";matches.S1.b=womenTeams[1]||"Tim 2";
+ matches.S2.a=womenTeams[2]||"Tim 3";matches.S2.b=womenTeams[3]||"Tim 4";
  $("gameTitle").textContent="VOLI PUTRI";$("gameHeader").textContent="Voli Putri";
  document.querySelector(".hero h2").textContent="VOLI PUTRI";
  $("bracket").innerHTML=
