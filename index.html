@@ -731,34 +731,39 @@ function setAdmin(){
 }
 $("menMode").onclick=()=>switchMode(false);
 $("womenMode").onclick=()=>switchMode(true);
-$("generate").addEventListener("click",async e=>{
+$("generate").addEventListener("click",e=>{
  e.preventDefault();
  const btn=e.currentTarget;
  btn.disabled=true;
- try{
-  saveInputs();
-  if(women){
-   womenDraftDirty=true;
-   if(!matches.S1||!matches.S2) initWomen();
-   matches.S1.a=womenTeams[0]||"Tim 1";matches.S1.b=womenTeams[1]||"Tim 2";
-   matches.S2.a=womenTeams[2]||"Tim 3";matches.S2.b=womenTeams[3]||"Tim 4";
-   renderWomen();buildMatchSelect();
-  }else{
-   initMen();renderMen();buildMatchSelect();
-  }
-  const ok=await saveDbRows(women?["S1","S2"]:["R1","R2","R3","R4","R5","R6","R7","R8"]);
+ saveInputs();
+ if(women){
+  womenDraftDirty=true;
+  if(!matches.S1||!matches.S2) initWomen();
+  matches.S1.a=womenTeams[0]||"Tim 1";
+  matches.S1.b=womenTeams[1]||"Tim 2";
+  matches.S2.a=womenTeams[2]||"Tim 3";
+  matches.S2.b=womenTeams[3]||"Tim 4";
+  renderWomen();
+  buildMatchSelect();
+ }else{
+  initMen();
+  renderMen();
+  buildMatchSelect();
+ }
+ const ids=women?["S1","S2"]:["R1","R2","R3","R4","R5","R6","R7","R8"];
+ saveDbRows(ids).then(ok=>{
   if(!ok){
-   alert("Bagan sudah berubah di layar, tetapi belum tersimpan ke database. Coba Generate lagi.");
+   alert("Bagan sudah berubah di layar, tetapi belum tersimpan ke database.");
    return;
   }
   if(women)womenDraftDirty=false;
   alert("Bagan "+(women?"putri":"putra")+" sudah diperbarui.");
- }catch(err){
-  console.error("Generate bracket:",err);
-  alert("Generate gagal. Coba lagi.");
- }finally{
+ }).catch(err=>{
+  console.error("Generate save:",err);
+  alert("Bagan tampil, tetapi gagal menyimpan: "+(err&&err.message?err.message:"cek Supabase"));
+ }).finally(()=>{
   btn.disabled=false;
- }
+ });
 });
 $("reset").onclick=async()=>{
  if(!confirm("Reset semua nama tim?"))return;
