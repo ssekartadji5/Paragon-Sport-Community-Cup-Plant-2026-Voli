@@ -700,12 +700,14 @@ function loadScore(id){
 }
 async function generateBracket(){
  const data=[...document.querySelectorAll("#teamInputs input")].map(x=>x.value.trim());
+ saveInputs();
  if(women){
-  womenTeams=data;
   womenDraftDirty=true;
-  initWomen();
-  matches.S1.a=data[0]||"Tim 1";matches.S1.b=data[1]||"Tim 2";
-  matches.S2.a=data[2]||"Tim 3";matches.S2.b=data[3]||"Tim 4";
+  if(!matches.S1 || !matches.S2 || !matches.F) initWomen();
+  matches.S1.a=data[0]||"Tim 1";
+  matches.S1.b=data[1]||"Tim 2";
+  matches.S2.a=data[2]||"Tim 3";
+  matches.S2.b=data[3]||"Tim 4";
   renderWomen();
  }else{
   menTeams=data;
