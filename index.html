@@ -250,6 +250,7 @@ header small{
 .match[data-match="S2"]:after{content:"MATCH 14"}
 .match.women-match[data-match="S1"]:after{content:"MATCH 01"}
 .match.women-match[data-match="S2"]:after{content:"MATCH 02"}
+.match.women-match[data-match="F"]:after{content:"MATCH 03"}
 .match[data-match="F"]:after{content:"MATCH 15"}
 .match[data-match="T"]:after{content:"MATCH 16"}
 
@@ -600,7 +601,7 @@ function match(a="",b="",id=""){
  const n=id&&id[0]==="R"?parseInt(id.slice(1)):0;
  const la=v=>v||(women&&(id==="S1"||id==="S2")?"TBD":(n?"Tim "+(n*2-1):"TBD"));
  const lb=v=>v||(women&&(id==="S1"||id==="S2")?"TBD":(n?"Tim "+(n*2):"TBD"));
- const wc=women&&(id==="S1"||id==="S2")?" women-match":"";
+ const wc=women&&(id==="S1"||id==="S2"||id==="F")?" women-match":"";
  const hasScores=m&&[m.set1a,m.set1b,m.set2a,m.set2b,m.set3a,m.set3b].some(v=>v!==null&&v!==undefined&&v!=="");
  const scoreTable=hasScores?'<table class="score-grid"><tbody><tr><td title="'+la(a)+'">'+la(a)+'</td><td>'+scoreCell(m.set1a)+'</td><td>'+scoreCell(m.set2a)+'</td><td>'+scoreCell(m.set3a)+'</td></tr><tr><td title="'+lb(b)+'">'+lb(b)+'</td><td>'+scoreCell(m.set1b)+'</td><td>'+scoreCell(m.set2b)+'</td><td>'+scoreCell(m.set3b)+'</td></tr></tbody></table>':'';
  if(hasScores)return '<div class="match'+wc+' scored-match" data-match="'+id+'">'+scoreTable+'</div>';
