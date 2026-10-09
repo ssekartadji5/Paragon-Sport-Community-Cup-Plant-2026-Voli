@@ -397,6 +397,25 @@ header small{
 .score-grid td+td{border-left:0}
 .score-grid .set-empty{color:#aeb4bd}
 .scored-match{padding:8px!important;background:#282b31!important;border:2px solid #282b31!important;border-left:3px solid #FE1B0A!important;border-radius:6px!important;box-shadow:0 8px 14px #0005!important;overflow:visible}
+.scored-match:after{display:block!important;position:absolute!important;left:0!important;right:0!important;bottom:-18px!important;text-align:center!important;content:attr(data-match)!important;color:#343a42!important;font-size:8px!important;font-weight:900!important;letter-spacing:.8px!important}
+.scored-match[data-match="R1"]:after{content:"MATCH 01"!important}
+.scored-match[data-match="R2"]:after{content:"MATCH 02"!important}
+.scored-match[data-match="R3"]:after{content:"MATCH 03"!important}
+.scored-match[data-match="R4"]:after{content:"MATCH 04"!important}
+.scored-match[data-match="R5"]:after{content:"MATCH 05"!important}
+.scored-match[data-match="R6"]:after{content:"MATCH 06"!important}
+.scored-match[data-match="R7"]:after{content:"MATCH 07"!important}
+.scored-match[data-match="R8"]:after{content:"MATCH 08"!important}
+.scored-match[data-match="Q1"]:after{content:"MATCH 09"!important}
+.scored-match[data-match="Q2"]:after{content:"MATCH 10"!important}
+.scored-match[data-match="Q3"]:after{content:"MATCH 11"!important}
+.scored-match[data-match="Q4"]:after{content:"MATCH 12"!important}
+.scored-match[data-match="S1"]:after{content:"MATCH 13"!important}
+.scored-match[data-match="S2"]:after{content:"MATCH 14"!important}
+.scored-match.women-match[data-match="S1"]:after{content:"MATCH 01"!important}
+.scored-match.women-match[data-match="S2"]:after{content:"MATCH 02"!important}
+.scored-match[data-match="F"]:after{content:"MATCH 15"!important}
+.scored-match[data-match="T"]:after{content:"MATCH 16"!important}
 
 .btn{
   background:var(--red);
