@@ -945,7 +945,8 @@ async function saveScore(){
  }else if(!women){
   idsToSave=propagateMenResult(id);
  }
- if(!ok){alert("Skor belum tersimpan ke database. Periksa kolom skor set di Supabase.");return}
+ const ok=await saveDbRows(idsToSave);
+ if(!ok){alert("Skor dan perpindahan pemenang belum tersimpan ke database. Periksa koneksi Supabase lalu coba lagi.");return}
  women?renderWomen():renderMen();buildMatchSelect();loadScore(id);
  alert("Skor "+matchLabel(id)+" tersimpan. "+m.winner+" menang "+Math.max(winsA,winsB)+"–"+Math.min(winsA,winsB)+" set.");
 }
