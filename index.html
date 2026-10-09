@@ -708,9 +708,15 @@ function applyDbRow(row,options={}){
  });
  if(row.winner)matches[id].winner=row.winner;
  if(row.division==="PUTRA"&&/^R[1-8]$/.test(id)){
-  const n=Number(id.slice(1))-1,slots=[[0,1],[2,3],[4,5],[6,7],[8,9],[10,11],[12,13],[14,15]][n];
-  if(row.team_a)menTeams[slots[0]]=row.team_a;
-  if(row.team_b&&row.team_b!=="BYE")menTeams[slots[1]]=row.team_b;
+  // Rebuild Admin inputs in their original order, not bracket-slot order.
+  const inputSlots={
+   R1:[0,null],R2:[1,2],R3:[3,4],R4:[5,6],
+   R5:[7,8],R6:[9,10],R7:[11,12],R8:[13,null]
+  }[id];
+  if(inputSlots){
+   if(inputSlots[0]!==null&&row.team_a)menTeams[inputSlots[0]]=row.team_a;
+   if(inputSlots[1]!==null&&row.team_b&&row.team_b!=="BYE")menTeams[inputSlots[1]]=row.team_b;
+  }
  }
  if(row.division==="PUTRI"&&(id==="S1"||id==="S2")&&!protectWomenNames){
   const n=id==="S1"?0:2;
@@ -803,8 +809,12 @@ async function generateBracket(){
   womenGenerateInProgress=false;
   // Re-render from the Admin state after the database write completes.
   renderWomen();
-  buildMatchSelect();
+ }else{
+  // Keep the entered names visible in Admin Control after generating.
+  menTeams=data.slice(0,14);
  }
+ buildInputs();
+ buildMatchSelect();
  alert("Bagan "+(women?"putri":"putra")+" sudah diperbarui.");
 }
 async function saveScore(){
