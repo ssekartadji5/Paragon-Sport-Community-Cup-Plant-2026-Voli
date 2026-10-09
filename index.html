@@ -737,6 +737,8 @@ async function loadDb(){
   initMen();
   data.forEach(applyDbRow);
   renderMen();
+  // Rebuild Admin Control inputs from the names restored from Supabase.
+  buildInputs();
  }
  buildMatchSelect();
 }
