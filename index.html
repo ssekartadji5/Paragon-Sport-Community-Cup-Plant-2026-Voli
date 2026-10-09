@@ -747,10 +747,15 @@ function applyDbRow(row,options={}){
   if(row.team_b)womenTeams[n+1]=row.team_b;
  }
 }
+let modeSwitchVersion=0;
 async function loadDb(){
  if(!supabase)return;
- const {data,error}=await supabase.from("volleyball_matches").select("*").eq("division",women?"PUTRI":"PUTRA");
+ const requestedWomen=women;
+ const requestedVersion=modeSwitchVersion;
+ const {data,error}=await supabase.from("volleyball_matches").select("*").eq("division",requestedWomen?"PUTRI":"PUTRA");
  if(error){console.error("Supabase load:",error);return}
+ // Ignore late responses belonging to the division that is no longer selected.
+ if(requestedVersion!==modeSwitchVersion||requestedWomen!==women)return;
  if(women&&womenDraftDirty)return;
  if(women){
   initWomen();
@@ -903,12 +908,22 @@ async function saveScore(){
  alert("Skor "+matchLabel(id)+" tersimpan. "+m.winner+" menang "+Math.max(winsA,winsB)+"–"+Math.min(winsA,winsB)+" set.");
 }
 async function switchMode(toWomen){
- saveInputs();women=toWomen;
- if(women)womenDraftDirty=false;women?initWomen():initMen();
- $("menMode").classList.toggle("active",!women);$("womenMode").classList.toggle("active",women);
- buildInputs();women?renderWomen():renderMen();buildMatchSelect();
+ if(women===toWomen)return;
+ saveInputs();
+ women=toWomen;
+ modeSwitchVersion++;
+ if(women)womenDraftDirty=false;
+ women?initWomen():initMen();
+ $("menMode").classList.toggle("active",!women);
+ $("womenMode").classList.toggle("active",women);
+ buildInputs();
+ women?renderWomen():renderMen();
+ buildMatchSelect();
  await loadDb();
- buildInputs();women?renderWomen():renderMen();buildMatchSelect();
+ // loadDb only renders if this mode is still selected.
+ buildInputs();
+ women?renderWomen():renderMen();
+ buildMatchSelect();
 }
 function setAdmin(){
  const p=prompt("Masukkan password Admin");
