@@ -381,35 +381,20 @@ header small{
   margin-top:16px
 }
 
-.set-scores{
-  display:flex;
-  flex-wrap:wrap;
-  gap:10px;
-  align-items:flex-end
-}
-
-.set-scores label{
-  color:#c9cdd2;
-  font-size:10px;
-  font-weight:900;
-  letter-spacing:.8px
-}
-
-.set-pair{
-  display:flex;
-  align-items:center;
-  gap:6px;
-  margin-top:5px
-}
-
-.set-pair input{
-  width:76px;
-  min-width:0;
-  padding:10px 8px;
-  text-align:center
-}
-
-.set-pair span{color:#fff;font-weight:800}
+.score-entry-wrap{overflow-x:auto;max-width:100%}
+.score-entry-table{border-collapse:separate;border-spacing:4px;width:auto;color:#fff;font-size:12px}
+.score-entry-table th{padding:7px 9px;text-align:center;white-space:nowrap;color:#c9cdd2;font-size:10px;text-transform:uppercase}
+.score-entry-table tbody th{text-align:left;max-width:130px;overflow:hidden;text-overflow:ellipsis;color:#fff;text-transform:none;font-size:12px}
+.score-entry-table td{padding:0}
+.score-entry-table input{width:66px;min-width:66px;text-align:center;padding:9px 5px}
+.score-entry-table input::-webkit-inner-spin-button,.score-entry-table input::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+.score-entry-table input[type=number]{-moz-appearance:textfield}
+.score-grid{width:100%;margin-top:5px;border-collapse:collapse;table-layout:fixed;color:#fff;font-size:7px}
+.score-grid th,.score-grid td{padding:3px 2px;text-align:center;border:1px solid #ffffff22}
+.score-grid th{background:#242a33;color:#c9cdd2;font-weight:800;text-transform:uppercase}
+.score-grid td:first-child,.score-grid th:first-child{text-align:left;width:42%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.score-grid td{background:#252a31}
+.score-grid .set-empty{color:#8d949e}
 
 .btn{
   background:var(--red);
@@ -553,10 +538,14 @@ RESET
 
 <select id="matchSelect"></select>
 
-<div class="set-scores" id="setScores">
- <label>SET 1 <div class="set-pair"><input id="s1a" type="number" min="0" max="99" inputmode="numeric" placeholder="Tim A" aria-label="Poin Tim A Set 1"><span>–</span><input id="s1b" type="number" min="0" max="99" inputmode="numeric" placeholder="Tim B" aria-label="Poin Tim B Set 1"></div></label>
- <label>SET 2 <div class="set-pair"><input id="s2a" type="number" min="0" max="99" inputmode="numeric" placeholder="Tim A" aria-label="Poin Tim A Set 2"><span>–</span><input id="s2b" type="number" min="0" max="99" inputmode="numeric" placeholder="Tim B" aria-label="Poin Tim B Set 2"></div></label>
- <label>SET 3 <div class="set-pair"><input id="s3a" type="number" min="0" max="99" inputmode="numeric" placeholder="Tim A" aria-label="Poin Tim A Set 3"><span>–</span><input id="s3b" type="number" min="0" max="99" inputmode="numeric" placeholder="Tim B" aria-label="Poin Tim B Set 3"></div></label>
+<div class="score-entry-wrap">
+ <table class="score-entry-table">
+  <thead><tr><th>Tim</th><th>Set 1</th><th>Set 2</th><th>Set 3</th></tr></thead>
+  <tbody>
+   <tr><th id="scoreTeamA">Tim A</th><td><input id="s1a" type="number" min="0" max="99" inputmode="numeric" aria-label="Poin Tim A Set 1"></td><td><input id="s2a" type="number" min="0" max="99" inputmode="numeric" aria-label="Poin Tim A Set 2"></td><td><input id="s3a" type="number" min="0" max="99" inputmode="numeric" aria-label="Poin Tim A Set 3"></td></tr>
+   <tr><th id="scoreTeamB">Tim B</th><td><input id="s1b" type="number" min="0" max="99" inputmode="numeric" aria-label="Poin Tim B Set 1"></td><td><input id="s2b" type="number" min="0" max="99" inputmode="numeric" aria-label="Poin Tim B Set 2"></td><td><input id="s3b" type="number" min="0" max="99" inputmode="numeric" aria-label="Poin Tim B Set 3"></td></tr>
+  </tbody>
+ </table>
 </div>
 <button class="btn" id="saveScore">SIMPAN SKOR</button>
 
@@ -589,8 +578,11 @@ function match(a="",b="",id=""){
  const la=v=>v||(women&&(id==="S1"||id==="S2")?"TBD":(n?"Tim "+(n*2-1):"TBD"));
  const lb=v=>v||(women&&(id==="S1"||id==="S2")?"TBD":(n?"Tim "+(n*2):"TBD"));
  const wc=women&&(id==="S1"||id==="S2")?" women-match":"";
- return '<div class="match'+wc+'" data-match="'+id+'"><div class="team'+wa+'">'+la(a)+(sa!==""?'<span class="score">'+sa+'</span>':"")+'</div><div class="team'+wb+'">'+lb(b)+(sb!==""?'<span class="score">'+sb+'</span>':"")+'</div></div>';
+ const hasScores=m&&[m.set1a,m.set1b,m.set2a,m.set2b,m.set3a,m.set3b].some(v=>v!==null&&v!==undefined&&v!=="");
+ const scoreTable=hasScores?'<table class="score-grid"><thead><tr><th>Tim</th><th>Set 1</th><th>Set 2</th><th>Set 3</th></tr></thead><tbody><tr><td title="'+la(a)+'">'+la(a)+'</td><td>'+scoreCell(m.set1a)+'</td><td>'+scoreCell(m.set2a)+'</td><td>'+scoreCell(m.set3a)+'</td></tr><tr><td title="'+lb(b)+'">'+lb(b)+'</td><td>'+scoreCell(m.set1b)+'</td><td>'+scoreCell(m.set2b)+'</td><td>'+scoreCell(m.set3b)+'</td></tr></tbody></table>':'';
+ return '<div class="match'+wc+'" data-match="'+id+'"><div class="team'+wa+'">'+la(a)+(sa!==""?'<span class="score">'+sa+' set</span>':"")+'</div><div class="team'+wb+'">'+lb(b)+(sb!==""?'<span class="score">'+sb+' set</span>':"")+'</div>'+scoreTable+'</div>';
 }
+function scoreCell(v){return v===null||v===undefined||v===""?'<span class="set-empty">–</span>':v}
 function initMen(){
  matches={};
  for(let i=1;i<=8;i++)matches["R"+i]={a:"",b:"",winner:"",sa:undefined,sb:undefined,round:"R16"};
@@ -754,9 +746,8 @@ function loadScore(id){
  [["s1a","set1a"],["s1b","set1b"],["s2a","set2a"],["s2b","set2b"],["s3a","set3a"],["s3b","set3b"]].forEach(([input,key])=>{
   $(input).value=m[key]??"";
  });
- const teamA=m.a||"TBD",teamB=m.b||"TBD";
- [["s1a",teamA],["s2a",teamA],["s3a",teamA]].forEach(([id,name])=>$(id).placeholder=name);
- [["s1b",teamB],["s2b",teamB],["s3b",teamB]].forEach(([id,name])=>$(id).placeholder=name);
+ $("scoreTeamA").textContent=m.a||"TBD";
+ $("scoreTeamB").textContent=m.b||"TBD";
 }
 async function generateBracket(){
  const data=[...document.querySelectorAll("#teamInputs input")].map(x=>x.value.trim());
