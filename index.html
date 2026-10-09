@@ -638,7 +638,10 @@ function initWomen(){
 }
 function card(id){const m=matches[id];return match(m.a,m.b,id)}
 function renderMen(){
- $("gameTitle").textContent="VOLI PUTRA";$("gameHeader").textContent="Voli Putra";
+ const gameTitleEl=$("gameTitle"),gameHeaderEl=$("gameHeader"),heroTitleEl=document.querySelector(".hero h2");
+ if(gameTitleEl)gameTitleEl.textContent="VOLI PUTRA";
+ if(gameHeaderEl)gameHeaderEl.textContent="Voli Putra";
+ if(heroTitleEl)heroTitleEl.textContent="VOLI PUTRA - ROUND OF 16";
  $("bracket").innerHTML=
  '<div class="round left"><h3>ROUND OF 16</h3>'+card("R1")+card("R2")+card("R3")+card("R4")+'</div>'+
  '<div class="round left"><h3>QUARTER FINAL</h3>'+card("Q1")+card("Q2")+'</div>'+
