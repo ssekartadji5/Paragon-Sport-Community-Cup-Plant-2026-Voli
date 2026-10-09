@@ -650,9 +650,19 @@ function renderMen(){
  '<div class="round right"><h3>QUARTER FINAL</h3>'+card("Q3")+card("Q4")+'</div>'+
  '<div class="round right"><h3>ROUND OF 16</h3>'+card("R5")+card("R6")+card("R7")+card("R8")+'</div>';
 }
+function syncWomenFinal(){
+ if(!matches.S1||!matches.S2||!matches.F)return;
+ const finalA=matches.S1.winner||"",finalB=matches.S2.winner||"";
+ if(matches.F.a!==finalA||matches.F.b!==finalB){
+  matches.F.a=finalA;matches.F.b=finalB;
+  matches.F.winner="";matches.F.sa=undefined;matches.F.sb=undefined;
+  matches.F.set1a=matches.F.set1b=matches.F.set2a=matches.F.set2b=matches.F.set3a=matches.F.set3b=undefined;
+ }
+}
 function renderWomen(){
  matches.S1.a=womenTeams[0]||"Tim 1";matches.S1.b=womenTeams[1]||"Tim 2";
  matches.S2.a=womenTeams[2]||"Tim 3";matches.S2.b=womenTeams[3]||"Tim 4";
+ syncWomenFinal();
  $("gameTitle").textContent="VOLI PUTRI";$("gameHeader").textContent="Voli Putri";
  document.querySelector(".hero h2").textContent="VOLI PUTRI";
  $("bracket").innerHTML=
@@ -732,7 +742,9 @@ async function loadDb(){
  if(women){
   initWomen();
   data.forEach(row=>applyDbRow(row,{protectWomenNames:false}));
+  syncWomenFinal();
   renderWomen();
+  buildInputs();
  }else{
   initMen();
   data.forEach(applyDbRow);
@@ -799,7 +811,7 @@ async function generateBracket(){
   renderMen();
  }
  buildMatchSelect();
- const ids=women?["S1","S2"]:["R1","R2","R3","R4","R5","R6","R7","R8","Q1","Q2","Q3","Q4"];
+ const ids=women?["S1","S2","F"]:["R1","R2","R3","R4","R5","R6","R7","R8","Q1","Q2","Q3","Q4"];
  const ok=await saveDbRows(ids);
  if(!ok){
   womenGenerateInProgress=false;
@@ -854,7 +866,9 @@ async function saveScore(){
  if(winsA===1&&winsB===1&&setWinners.length<3){alert("Kedua tim sudah berbagi 1 set. Isi skor Set 3 sampai 15 poin.");return}
  m.set1a=parsed[0][0];m.set1b=parsed[0][1];m.set2a=parsed[1][0];m.set2b=parsed[1][1];m.set3a=parsed[2][0];m.set3b=parsed[2][1];
  m.sa=winsA;m.sb=winsB;m.winner=winsA>winsB?m.a:m.b;
- const ok=await saveDbRows([id]);
+ if(women&&(id==="S1"||id==="S2"))syncWomenFinal();
+ const idsToSave=women&&(id==="S1"||id==="S2")?[id,"F"]:[id];
+ const ok=await saveDbRows(idsToSave);
  if(!ok){alert("Skor belum tersimpan ke database. Periksa kolom skor set di Supabase.");return}
  women?renderWomen():renderMen();buildMatchSelect();loadScore(id);
  alert("Skor "+matchLabel(id)+" tersimpan. "+m.winner+" menang "+Math.max(winsA,winsB)+"–"+Math.min(winsA,winsB)+" set.");
