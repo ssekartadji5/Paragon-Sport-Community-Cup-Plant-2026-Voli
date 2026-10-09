@@ -811,47 +811,56 @@ function loadScore(id){
  $("scoreTeamB").textContent=m.b||"TBD";
 }
 async function generateBracket(){
+ const btn=$("generate");
+ const originalText=btn.textContent;
  const data=[...document.querySelectorAll("#teamInputs input")].map(x=>x.value.trim());
- if(women){
-  womenGenerateInProgress=true;
-  womenDraftDirty=true;
-  womenTeams=data.slice(0,4);
-  initWomen();
-  matches.S1.a=womenTeams[0]||"Tim 1";
-  matches.S1.b=womenTeams[1]||"Tim 2";
-  matches.S2.a=womenTeams[2]||"Tim 3";
-  matches.S2.b=womenTeams[3]||"Tim 4";
-  renderWomen();
- }else{
-  menTeams=data.slice(0,14);
-  initMen();
-  renderMen();
- }
- buildInputs();
- buildMatchSelect();
- const ids=women?["S1","S2","F"]:["R1","R2","R3","R4","R5","R6","R7","R8","Q1","Q2","Q3","Q4"];
- const ok=await saveDbRows(ids);
- if(!ok){
-  womenGenerateInProgress=false;
-  alert("Bagan sudah berubah di layar, tetapi gagal tersimpan ke database.");
-  return;
- }
- if(women){
-  // Restore the submitted values after the async database save, then render.
-  womenTeams=data.slice(0,4);
-  if(!matches.S1||!matches.S2||!matches.F)initWomen();
-  matches.S1.a=womenTeams[0]||"Tim 1";matches.S1.b=womenTeams[1]||"Tim 2";
-  matches.S2.a=womenTeams[2]||"Tim 3";matches.S2.b=womenTeams[3]||"Tim 4";
-  renderWomen();
+ try{
+  btn.disabled=true;
+  btn.textContent="MENYIMPAN...";
+  if(women){
+   womenGenerateInProgress=true;
+   womenDraftDirty=true;
+   womenTeams=data.slice(0,4);
+   initWomen();
+   matches.S1.a=womenTeams[0]||"Tim 1";
+   matches.S1.b=womenTeams[1]||"Tim 2";
+   matches.S2.a=womenTeams[2]||"Tim 3";
+   matches.S2.b=womenTeams[3]||"Tim 4";
+   renderWomen();
+  }else{
+   menTeams=data.slice(0,14);
+   initMen();
+   renderMen();
+  }
   buildInputs();
-  womenDraftDirty=false;
+  buildMatchSelect();
+  const ids=women?["S1","S2","F"]:["R1","R2","R3","R4","R5","R6","R7","R8","Q1","Q2","Q3","Q4"];
+  const ok=await saveDbRows(ids);
+  if(!ok){
+   alert("Bagan sudah diperbarui di layar, tetapi penyimpanan ke Supabase gagal. Periksa koneksi/database lalu coba lagi.");
+   return;
+  }
+  if(women){
+   womenTeams=data.slice(0,4);
+   matches.S1.a=womenTeams[0]||"Tim 1";matches.S1.b=womenTeams[1]||"Tim 2";
+   matches.S2.a=womenTeams[2]||"Tim 3";matches.S2.b=womenTeams[3]||"Tim 4";
+   renderWomen();
+   womenDraftDirty=false;
+   womenGenerateInProgress=false;
+  }else{
+   menTeams=data.slice(0,14);
+  }
+  buildInputs();
+  buildMatchSelect();
+  alert("Data Voli "+(women?"Putri":"Putra")+" telah terupdate.");
+ }catch(err){
+  console.error("Generate bracket error:",err);
+  alert("Generate gagal dijalankan: "+(err&&err.message?err.message:"kesalahan tidak diketahui")+". Coba refresh halaman dan periksa Console jika masih terjadi.");
+ }finally{
   womenGenerateInProgress=false;
- }else{
-  menTeams=data.slice(0,14);
+  btn.disabled=false;
+  btn.textContent=originalText;
  }
- buildInputs();
- buildMatchSelect();
- alert("Bagan "+(women?"putri":"putra")+" sudah diperbarui.");
 }
 async function saveScore(){
  const id=$("matchSelect").value,m=matches[id];if(!m)return;
