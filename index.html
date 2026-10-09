@@ -676,10 +676,11 @@ function buildInputs(){
  document.querySelectorAll("#teamInputs input").forEach(x=>x.oninput=()=>{
   const d=[...document.querySelectorAll("#teamInputs input")].map(x=>x.value.trim());
   if(women){
-   womenTeams=d;
+   womenTeams=d.slice(0,4);
    womenDraftDirty=true;
-   if(matches.S1){matches.S1.a=d[0]||"Tim 1";matches.S1.b=d[1]||"Tim 2";}
-   if(matches.S2){matches.S2.a=d[2]||"Tim 3";matches.S2.b=d[3]||"Tim 4";}
+   if(!matches.S1||!matches.S2||!matches.F)initWomen();
+   matches.S1.a=womenTeams[0]||"Tim 1";matches.S1.b=womenTeams[1]||"Tim 2";
+   matches.S2.a=womenTeams[2]||"Tim 3";matches.S2.b=womenTeams[3]||"Tim 4";
    renderWomen();buildMatchSelect();
   }else menTeams=d;
  });
@@ -741,7 +742,14 @@ async function loadDb(){
  if(women&&womenDraftDirty)return;
  if(women){
   initWomen();
-  data.forEach(row=>applyDbRow(row,{protectWomenNames:false}));
+  // Restore semifinal team names from their exact database rows first.
+  const sf1=data.find(row=>row.id==="PUTRI-S1");
+  const sf2=data.find(row=>row.id==="PUTRI-S2");
+  if(sf1){womenTeams[0]=sf1.team_a||"";womenTeams[1]=sf1.team_b||"";}
+  if(sf2){womenTeams[2]=sf2.team_a||"";womenTeams[3]=sf2.team_b||"";}
+  data.forEach(row=>applyDbRow(row,{protectWomenNames:true}));
+  matches.S1.a=womenTeams[0]||"Tim 1";matches.S1.b=womenTeams[1]||"Tim 2";
+  matches.S2.a=womenTeams[2]||"Tim 3";matches.S2.b=womenTeams[3]||"Tim 4";
   syncWomenFinal();
   renderWomen();
   buildInputs();
@@ -806,10 +814,11 @@ async function generateBracket(){
   matches.S2.b=womenTeams[3]||"Tim 4";
   renderWomen();
  }else{
-  menTeams=data;
+  menTeams=data.slice(0,14);
   initMen();
   renderMen();
  }
+ buildInputs();
  buildMatchSelect();
  const ids=women?["S1","S2","F"]:["R1","R2","R3","R4","R5","R6","R7","R8","Q1","Q2","Q3","Q4"];
  const ok=await saveDbRows(ids);
@@ -821,10 +830,12 @@ async function generateBracket(){
  if(women){
   womenDraftDirty=false;
   womenGenerateInProgress=false;
-  // Re-render from the Admin state after the database write completes.
+  // Keep the same four names as the source of truth after saving.
+  womenTeams=data.slice(0,4);
+  matches.S1.a=womenTeams[0]||"Tim 1";matches.S1.b=womenTeams[1]||"Tim 2";
+  matches.S2.a=womenTeams[2]||"Tim 3";matches.S2.b=womenTeams[3]||"Tim 4";
   renderWomen();
  }else{
-  // Keep the entered names visible in Admin Control after generating.
   menTeams=data.slice(0,14);
  }
  buildInputs();
