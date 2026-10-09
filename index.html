@@ -586,6 +586,12 @@ function initMen(){
   if(slots[i*2]==="BYE")matches["R"+(i+1)].winner=slots[i*2+1];
   if(slots[i*2+1]==="BYE")matches["R"+(i+1)].winner=slots[i*2];
  }
+ // A team facing BYE advances automatically into its quarter-final slot.
+ for(let i=0;i<4;i++){
+  const left=matches["R"+(i*2+1)],right=matches["R"+(i*2+2)],q=matches["Q"+(i+1)];
+  if(left.winner)q.a=left.winner;
+  if(right.winner)q.b=right.winner;
+ }
 }
 function initWomen(){
  matches={
@@ -732,7 +738,7 @@ async function generateBracket(){
   renderMen();
  }
  buildMatchSelect();
- const ids=women?["S1","S2"]:["R1","R2","R3","R4","R5","R6","R7","R8"];
+ const ids=women?["S1","S2"]:["R1","R2","R3","R4","R5","R6","R7","R8","Q1","Q2","Q3","Q4"];
  const ok=await saveDbRows(ids);
  if(!ok){
   womenGenerateInProgress=false;
