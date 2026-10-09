@@ -811,12 +811,10 @@ function loadScore(id){
  $("scoreTeamB").textContent=m.b||"TBD";
 }
 async function generateBracket(){
- const btn=$("generate");
- const originalText=btn.textContent;
  const data=[...document.querySelectorAll("#teamInputs input")].map(x=>x.value.trim());
  try{
-  btn.disabled=true;
-  btn.textContent="MENYIMPAN...";
+  // Do not rely on a button lookup for core logic; the previous null button
+  // reference could abort Generate before it updated the bracket.
   if(women){
    womenGenerateInProgress=true;
    womenDraftDirty=true;
@@ -837,7 +835,7 @@ async function generateBracket(){
   const ids=women?["S1","S2","F"]:["R1","R2","R3","R4","R5","R6","R7","R8","Q1","Q2","Q3","Q4"];
   const ok=await saveDbRows(ids);
   if(!ok){
-   alert("Bagan sudah diperbarui di layar, tetapi penyimpanan ke Supabase gagal. Periksa koneksi/database lalu coba lagi.");
+   alert("Nama tim sudah diterapkan di layar, tetapi penyimpanan Supabase gagal. Periksa koneksi/database lalu coba lagi.");
    return;
   }
   if(women){
@@ -846,7 +844,6 @@ async function generateBracket(){
    matches.S2.a=womenTeams[2]||"Tim 3";matches.S2.b=womenTeams[3]||"Tim 4";
    renderWomen();
    womenDraftDirty=false;
-   womenGenerateInProgress=false;
   }else{
    menTeams=data.slice(0,14);
   }
@@ -855,11 +852,9 @@ async function generateBracket(){
   alert("Data Voli "+(women?"Putri":"Putra")+" telah terupdate.");
  }catch(err){
   console.error("Generate bracket error:",err);
-  alert("Generate gagal dijalankan: "+(err&&err.message?err.message:"kesalahan tidak diketahui")+". Coba refresh halaman dan periksa Console jika masih terjadi.");
+  alert("Generate gagal dijalankan: "+(err&&err.message?err.message:"kesalahan tidak diketahui")+".");
  }finally{
   womenGenerateInProgress=false;
-  btn.disabled=false;
-  btn.textContent=originalText;
  }
 }
 async function saveScore(){
