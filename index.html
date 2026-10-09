@@ -711,14 +711,31 @@ function startRealtime(){
   $("liveBadge").style.display="block";
  }).subscribe(status=>{$("liveBadge").style.display=status==="SUBSCRIBED"?"block":"none"});
 }
+function matchLabel(id){
+ const n=matchNumber(id);
+ return "Match "+n;
+}
 function buildMatchSelect(){
  const ids=Object.keys(matches);
- $("matchSelect").innerHTML=ids.map(id=>'<option value="'+id+'">'+id+" • "+matches[id].round+'</option>').join("");
- if(ids[0])loadScore(ids[0]);
+ const previous=$("matchSelect").value;
+ $("matchSelect").innerHTML=ids.map(id=>{
+  const m=matches[id];
+  return '<option value="'+id+'">'+matchLabel(id)+' • '+m.round+'</option>';
+ }).join("");
+ const selected=ids.includes(previous)?previous:ids[0];
+ if(selected)loadScore(selected);
 }
 function loadScore(id){
  const m=matches[id];if(!m)return;
- $("matchSelect").value=id;$("scoreA").value=m.sa??0;$("scoreB").value=m.sb??0;
+ $("matchSelect").value=id;
+ $("scoreA").value=m.sa??0;$("scoreB").value=m.sb??0;
+ const teamA=m.a||"TBD",teamB=m.b||"TBD";
+ $("scoreA").options[0].text=teamA+" — 0 set";
+ $("scoreA").options[1].text=teamA+" — 1 set";
+ $("scoreA").options[2].text=teamA+" — 2 set";
+ $("scoreB").options[0].text=teamB+" — 0 set";
+ $("scoreB").options[1].text=teamB+" — 1 set";
+ $("scoreB").options[2].text=teamB+" — 2 set";
 }
 async function generateBracket(){
  const data=[...document.querySelectorAll("#teamInputs input")].map(x=>x.value.trim());
