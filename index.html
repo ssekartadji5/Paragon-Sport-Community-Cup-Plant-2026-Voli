@@ -390,7 +390,9 @@ header small{
 .score-entry-table input::-webkit-inner-spin-button,.score-entry-table input::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
 .score-entry-table input[type=number]{-moz-appearance:textfield}
 .score-grid{width:100%;margin:0;border-collapse:collapse;table-layout:fixed;background:#20252d;color:#fff;font-size:10px}
-.score-grid td{padding:5px 4px;text-align:center;border:1px solid #414852;height:22px;background:#20252d;color:#fff}
+.score-grid td{padding:5px 4px;text-align:center;border:0;height:22px;background:#20252d;color:#fff}
+.score-grid tr+tr td{border-top:1px solid #414852}
+.score-grid td+td{border-left:1px solid #414852}
 .score-grid td:first-child{text-align:left;width:42%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .score-grid .set-empty{color:#9299a3}
 .scored-match{padding:0!important;background:#20252d!important;border:1px solid #FE1B0A!important;border-radius:5px!important;box-shadow:0 5px 12px #0005!important;overflow:hidden}
