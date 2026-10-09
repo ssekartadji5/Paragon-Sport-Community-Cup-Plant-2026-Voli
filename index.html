@@ -661,7 +661,13 @@ function syncWomenFinal(){
 }
 function renderWomen(){
  if(!matches.S1||!matches.S2||!matches.F)initWomen();
- // Keep the four Admin Control values as the single source of truth.
+ // Read Admin Control directly before painting the bracket, avoiding stale
+ // async database/realtime state replacing the visible team names.
+ const inputEls=[...document.querySelectorAll("#teamInputs input")];
+ if(inputEls.length===4){
+  const inputNames=inputEls.map(el=>el.value.trim());
+  if(inputNames.some(Boolean))womenTeams=inputNames;
+ }
  matches.S1.a=(womenTeams[0]||"").trim()||"Tim 1";
  matches.S1.b=(womenTeams[1]||"").trim()||"Tim 2";
  matches.S2.a=(womenTeams[2]||"").trim()||"Tim 3";
