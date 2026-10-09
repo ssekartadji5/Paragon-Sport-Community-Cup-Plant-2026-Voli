@@ -802,6 +802,10 @@ async function saveScore(){
  ];
  const parsed=sets.map(pair=>pair.map(v=>v===""?null:Number(v)));
  if(parsed.some(pair=>pair.some(v=>v!==null&&(!Number.isInteger(v)||v<0||v>99)))){alert("Masukkan poin bulat antara 0–99.");return}
+ if(parsed[0].every(v=>v===null)||parsed[0].some(v=>v===null)){alert("Isi skor lengkap Set 1 terlebih dahulu.");return}
+ if(parsed[1].some(v=>v===null)&&parsed[1].some(v=>v!==null)){alert("Isi poin kedua tim pada Set 2.");return}
+ if(parsed[2].some(v=>v===null)&&parsed[2].some(v=>v!==null)){alert("Isi poin kedua tim pada Set 3.");return}
+ if(parsed[2].some(v=>v!==null)&&parsed[1].every(v=>v===null)){alert("Set 2 harus diisi sebelum Set 3.");return}
  const setWinners=[];
  for(let i=0;i<3;i++){
   const [a,b]=parsed[i];
