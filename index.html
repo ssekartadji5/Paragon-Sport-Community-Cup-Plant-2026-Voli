@@ -381,6 +381,36 @@ header small{
   margin-top:16px
 }
 
+.set-scores{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  align-items:flex-end
+}
+
+.set-scores label{
+  color:#c9cdd2;
+  font-size:10px;
+  font-weight:900;
+  letter-spacing:.8px
+}
+
+.set-pair{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  margin-top:5px
+}
+
+.set-pair input{
+  width:76px;
+  min-width:0;
+  padding:10px 8px;
+  text-align:center
+}
+
+.set-pair span{color:#fff;font-weight:800}
+
 .btn{
   background:var(--red);
   color:#fff;
@@ -523,28 +553,17 @@ RESET
 
 <select id="matchSelect"></select>
 
-<select id="scoreA">
-<option value="0">0 set</option>
-<option value="1">1 set</option>
-<option value="2">2 set</option>
-</select>
-
-<span style="align-self:center">–</span>
-
-<select id="scoreB">
-<option value="0">0 set</option>
-<option value="1">1 set</option>
-<option value="2">2 set</option>
-</select>
-
-<button class="btn" id="saveScore">
-SIMPAN SKOR
-</button>
+<div class="set-scores" id="setScores">
+ <label>SET 1 <div class="set-pair"><input id="s1a" type="number" min="0" max="99" inputmode="numeric" placeholder="Tim A" aria-label="Poin Tim A Set 1"><span>–</span><input id="s1b" type="number" min="0" max="99" inputmode="numeric" placeholder="Tim B" aria-label="Poin Tim B Set 1"></div></label>
+ <label>SET 2 <div class="set-pair"><input id="s2a" type="number" min="0" max="99" inputmode="numeric" placeholder="Tim A" aria-label="Poin Tim A Set 2"><span>–</span><input id="s2b" type="number" min="0" max="99" inputmode="numeric" placeholder="Tim B" aria-label="Poin Tim B Set 2"></div></label>
+ <label>SET 3 <div class="set-pair"><input id="s3a" type="number" min="0" max="99" inputmode="numeric" placeholder="Tim A" aria-label="Poin Tim A Set 3"><span>–</span><input id="s3b" type="number" min="0" max="99" inputmode="numeric" placeholder="Tim B" aria-label="Poin Tim B Set 3"></div></label>
+</div>
+<button class="btn" id="saveScore">SIMPAN SKOR</button>
 
 </div>
 
 <div class="note">
-Format pertandingan: Best of 3 — tim pertama yang menang 2 set menjadi pemenang.
+Best of 3: Set 1–2 sampai 25 poin, Set 3 (jika diperlukan) sampai 15 poin. Menang wajib selisih minimal 2 poin.
 </div>
 
 </section>
@@ -645,7 +664,7 @@ function saveInputs(){
 }
 function matchNumber(id){if(women)return id==="S1"?1:id==="S2"?2:3;return {R1:1,R2:2,R3:3,R4:4,R5:5,R6:6,R7:7,R8:8,Q1:9,Q2:10,Q3:11,Q4:12,S1:13,S2:14,F:15,T:16}[id]||0}
 function dbRows(){
- return Object.keys(matches).map(id=>{const m=matches[id];return{id:(women?"PUTRI-":"PUTRA-")+id,division:women?"PUTRI":"PUTRA",round:m.round,match_number:matchNumber(id),team_a:m.a||"",team_b:m.b||"",score_a:m.sa??0,score_b:m.sb??0,winner:m.winner||"",status:m.winner?"finished":"pending",updated_at:new Date().toISOString()}})
+ return Object.keys(matches).map(id=>{const m=matches[id];return{id:(women?"PUTRI-":"PUTRA-")+id,division:women?"PUTRI":"PUTRA",round:m.round,match_number:matchNumber(id),team_a:m.a||"",team_b:m.b||"",score_a:m.sa??0,score_b:m.sb??0,set1_a:m.set1a??null,set1_b:m.set1b??null,set2_a:m.set2a??null,set2_b:m.set2b??null,set3_a:m.set3a??null,set3_b:m.set3b??null,winner:m.winner||"",status:m.winner?"finished":"pending",updated_at:new Date().toISOString()}})
 }
 async function saveDbRows(ids){
  if(!supabase)return false;
@@ -667,6 +686,10 @@ function applyDbRow(row,options={}){
  }
  if(row.score_a!==null&&row.score_a!==undefined&&row.winner)matches[id].sa=row.score_a;
  if(row.score_b!==null&&row.score_b!==undefined&&row.winner)matches[id].sb=row.score_b;
+ ["set1_a","set1_b","set2_a","set2_b","set3_a","set3_b"].forEach(k=>{
+  const key=k.replace("_","").replace("_","");
+  if(row[k]!==null&&row[k]!==undefined)matches[id][key]=row[k];
+ });
  if(row.winner)matches[id].winner=row.winner;
  if(row.division==="PUTRA"&&/^R[1-8]$/.test(id)){
   const n=Number(id.slice(1))-1,slots=[[0,1],[2,3],[4,5],[6,7],[8,9],[10,11],[12,13],[14,15]][n];
@@ -728,14 +751,12 @@ function buildMatchSelect(){
 function loadScore(id){
  const m=matches[id];if(!m)return;
  $("matchSelect").value=id;
- $("scoreA").value=m.sa??0;$("scoreB").value=m.sb??0;
+ [["s1a","set1a"],["s1b","set1b"],["s2a","set2a"],["s2b","set2b"],["s3a","set3a"],["s3b","set3b"]].forEach(([input,key])=>{
+  $(input).value=m[key]??"";
+ });
  const teamA=m.a||"TBD",teamB=m.b||"TBD";
- $("scoreA").options[0].text=teamA+" — 0 set";
- $("scoreA").options[1].text=teamA+" — 1 set";
- $("scoreA").options[2].text=teamA+" — 2 set";
- $("scoreB").options[0].text=teamB+" — 0 set";
- $("scoreB").options[1].text=teamB+" — 1 set";
- $("scoreB").options[2].text=teamB+" — 2 set";
+ [["s1a",teamA],["s2a",teamA],["s3a",teamA]].forEach(([id,name])=>$(id).placeholder=name);
+ [["s1b",teamB],["s2b",teamB],["s3b",teamB]].forEach(([id,name])=>$(id).placeholder=name);
 }
 async function generateBracket(){
  const data=[...document.querySelectorAll("#teamInputs input")].map(x=>x.value.trim());
@@ -771,14 +792,41 @@ async function generateBracket(){
  }
  alert("Bagan "+(women?"putri":"putra")+" sudah diperbarui.");
 }
-function saveScore(){
+async function saveScore(){
  const id=$("matchSelect").value,m=matches[id];if(!m)return;
- const a=Number($("scoreA").value),b=Number($("scoreB").value);
- if((a===2&&b===2)||a===b||a>2||b>2){alert("Skor harus 2–0 atau 2–1.");return}
- if(a!==2&&b!==2){alert("Salah satu tim harus mencapai 2 set.");return}
- if(!m.a||!m.b||m.a==="BYE"||m.b==="BYE"){alert("Match ini belum memiliki dua tim.");return}
- m.sa=a;m.sb=b;m.winner=a>b?m.a:m.b;
- women?renderWomen():renderMen();saveDbRows([id]);alert("Skor "+id+" disimpan: "+a+"–"+b);
+ if(!m.a||!m.b||m.a==="BYE"||m.b==="BYE"||m.a==="TBD"||m.b==="TBD"){alert("Match ini belum memiliki dua tim.");return}
+ const sets=[
+  [ $("s1a").value, $("s1b").value ],
+  [ $("s2a").value, $("s2b").value ],
+  [ $("s3a").value, $("s3b").value ]
+ ];
+ const parsed=sets.map(pair=>pair.map(v=>v===""?null:Number(v)));
+ if(parsed.some(pair=>pair.some(v=>v!==null&&(!Number.isInteger(v)||v<0||v>99)))){alert("Masukkan poin bulat antara 0–99.");return}
+ const setWinners=[];
+ for(let i=0;i<3;i++){
+  const [a,b]=parsed[i];
+  if(a===null&&b===null)continue;
+  if(a===null||b===null){alert("Isi poin kedua tim pada setiap set yang dimainkan.");return}
+  const target=i===2?15:25;
+  const high=Math.max(a,b),low=Math.min(a,b);
+  if(high<target||high-low<2){alert("Set "+(i+1)+" belum valid. Set "+(i===2?"3":"1–2")+" harus mencapai "+target+" poin dengan selisih minimal 2.");return}
+  setWinners.push(a>b?"a":"b");
+  if(setWinners.filter(x=>x==="a").length===2||setWinners.filter(x=>x==="b").length===2){
+   if(i<2&&parsed[i+1]&&parsed[i+1].some(v=>v!==null)){alert("Set 3 hanya dimainkan jika kedua tim masing-masing menang 1 set setelah Set 2.");return}
+   if(i===0&&parsed[1].some(v=>v!==null)){alert("Isi Set 2 sebelum menyimpan hasil pertandingan.");return}
+   if(i===1&&parsed[2].some(v=>v!==null)){alert("Set 3 tidak diperlukan jika satu tim sudah menang 2 set.");return}
+   break;
+  }
+ }
+ const winsA=setWinners.filter(x=>x==="a").length,winsB=setWinners.filter(x=>x==="b").length;
+ if(winsA<2&&winsB<2){alert("Pertandingan belum selesai. Isi skor sampai salah satu tim menang 2 set; Set 3 wajib jika hasil dua set pertama 1–1.");return}
+ if(winsA===1&&winsB===1&&setWinners.length<3){alert("Kedua tim sudah berbagi 1 set. Isi skor Set 3 sampai 15 poin.");return}
+ m.set1a=parsed[0][0];m.set1b=parsed[0][1];m.set2a=parsed[1][0];m.set2b=parsed[1][1];m.set3a=parsed[2][0];m.set3b=parsed[2][1];
+ m.sa=winsA;m.sb=winsB;m.winner=winsA>winsB?m.a:m.b;
+ const ok=await saveDbRows([id]);
+ if(!ok){alert("Skor belum tersimpan ke database. Periksa kolom skor set di Supabase.");return}
+ women?renderWomen():renderMen();buildMatchSelect();loadScore(id);
+ alert("Skor "+matchLabel(id)+" tersimpan. "+m.winner+" menang "+Math.max(winsA,winsB)+"–"+Math.min(winsA,winsB)+" set.");
 }
 async function switchMode(toWomen){
  saveInputs();women=toWomen;
