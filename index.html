@@ -673,8 +673,10 @@ function renderWomen(){
  matches.S2.a=(womenTeams[2]||"").trim()||"Tim 3";
  matches.S2.b=(womenTeams[3]||"").trim()||"Tim 4";
  syncWomenFinal();
- $("gameTitle").textContent="VOLI PUTRI";$("gameHeader").textContent="Voli Putri";
- document.querySelector(".hero h2").textContent="VOLI PUTRI";
+ const gameTitleEl=$("gameTitle"),gameHeaderEl=$("gameHeader"),heroTitleEl=document.querySelector(".hero h2");
+ if(gameTitleEl)gameTitleEl.textContent="VOLI PUTRI";
+ if(gameHeaderEl)gameHeaderEl.textContent="Voli Putri";
+ if(heroTitleEl)heroTitleEl.textContent="VOLI PUTRI";
  $("bracket").innerHTML=
  '<div class="round left">'+card("S1")+card("S2")+'</div>'+
  '<div class="round center"><h3>GRAND FINAL</h3><div class="grandbox"><div class="grandtitle">GRAND FINAL</div>'+
