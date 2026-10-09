@@ -660,8 +660,12 @@ function syncWomenFinal(){
  }
 }
 function renderWomen(){
- matches.S1.a=womenTeams[0]||"Tim 1";matches.S1.b=womenTeams[1]||"Tim 2";
- matches.S2.a=womenTeams[2]||"Tim 3";matches.S2.b=womenTeams[3]||"Tim 4";
+ if(!matches.S1||!matches.S2||!matches.F)initWomen();
+ // Keep the four Admin Control values as the single source of truth.
+ matches.S1.a=(womenTeams[0]||"").trim()||"Tim 1";
+ matches.S1.b=(womenTeams[1]||"").trim()||"Tim 2";
+ matches.S2.a=(womenTeams[2]||"").trim()||"Tim 3";
+ matches.S2.b=(womenTeams[3]||"").trim()||"Tim 4";
  syncWomenFinal();
  $("gameTitle").textContent="VOLI PUTRI";$("gameHeader").textContent="Voli Putri";
  document.querySelector(".hero h2").textContent="VOLI PUTRI";
@@ -679,9 +683,8 @@ function buildInputs(){
    womenTeams=d.slice(0,4);
    womenDraftDirty=true;
    if(!matches.S1||!matches.S2||!matches.F)initWomen();
-   matches.S1.a=womenTeams[0]||"Tim 1";matches.S1.b=womenTeams[1]||"Tim 2";
-   matches.S2.a=womenTeams[2]||"Tim 3";matches.S2.b=womenTeams[3]||"Tim 4";
-   renderWomen();buildMatchSelect();
+   renderWomen();
+   buildMatchSelect();
   }else menTeams=d;
  });
 }
@@ -828,13 +831,15 @@ async function generateBracket(){
   return;
  }
  if(women){
-  womenDraftDirty=false;
-  womenGenerateInProgress=false;
-  // Keep the same four names as the source of truth after saving.
+  // Restore the submitted values after the async database save, then render.
   womenTeams=data.slice(0,4);
+  if(!matches.S1||!matches.S2||!matches.F)initWomen();
   matches.S1.a=womenTeams[0]||"Tim 1";matches.S1.b=womenTeams[1]||"Tim 2";
   matches.S2.a=womenTeams[2]||"Tim 3";matches.S2.b=womenTeams[3]||"Tim 4";
   renderWomen();
+  buildInputs();
+  womenDraftDirty=false;
+  womenGenerateInProgress=false;
  }else{
   menTeams=data.slice(0,14);
  }
