@@ -62,8 +62,23 @@ header{
   display:flex;
   justify-content:space-between;
   align-items:center;
+  gap:20px;
   background:#11151dea;
   color:#fff
+}
+.header-brand{
+  display:flex;
+  align-items:center;
+  gap:22px;
+  min-width:0
+}
+.header-logo{
+  display:block;
+  width:150px;
+  max-height:66px;
+  object-fit:contain;
+  padding-left:20px;
+  border-left:1px solid #ffffff66
 }
 
 h1{
@@ -465,10 +480,24 @@ header small{
 }
 
 @media(max-width:700px){
-
   header{
-    padding:16px
+    padding:14px 16px;
+    flex-wrap:wrap;
+    gap:12px
   }
+  .header-brand{
+    flex:1 1 100%;
+    justify-content:space-between;
+    gap:12px
+  }
+  .header-logo{
+    width:100px;
+    max-height:48px;
+    padding-left:12px
+  }
+  h1{font-size:19px}
+  .mode{margin-left:0}
+
 
   .wrap{
     padding:16px
@@ -497,12 +526,19 @@ header small{
 
 <header>
 
-<div>
-<h1>Sport Community Cup Plant - 2026</h1>
-<small>
-PARAGON SPORT COMMUNITY •
-<span id="gameHeader">Voli Putra</span>
-</small>
+<div class="header-brand">
+  <div>
+    <h1>Sport Community Cup Plant - 2026</h1>
+    <small>
+      PARAGON SPORT COMMUNITY •
+      <span id="gameHeader">Voli Putra</span>
+    </small>
+  </div>
+  <img
+    class="header-logo"
+    src="https://raw.githubusercontent.com/ssekartadji5/Paragon-Sport-Community-Cup-Plant-2026-Voli/main/Logo%20Paragon%20Sport%20Community%20Cup%20-%20White%20(1).png"
+    alt="Paragon Sport Community Cup 2026"
+  >
 </div>
 
 <div class="mode">
