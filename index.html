@@ -747,7 +747,7 @@ function buildInputs(){
  $("teamInputs").innerHTML=Array.from({length:count},(_,i)=>{
   const isBye=!women&&(i===1||i===15);
   const value=isBye?"BYE":(data[i]||"");
-  return '<input data-team="'+i+'" placeholder="'+(isBye?"BYE":"Tim "+(i+1-(i>1?1:0)))+'" value="'+value.replace(/"/g,"&quot;")+'" '+(isBye?'readonly aria-label="BYE slot"':'')+'>';
+  return '<input data-team="'+i+'" placeholder="'+(isBye?"BYE":"Tim "+(i+1))+'" value="'+value.replace(/"/g,"&quot;")+'" '+(isBye?'readonly aria-label="BYE slot"':'')+'>';
  }).join("");
  document.querySelectorAll("#teamInputs input").forEach(x=>x.oninput=()=>{
   const d=[...document.querySelectorAll("#teamInputs input")].map((x,i)=>!women&&(i===1||i===15)?"BYE":x.value.trim());
