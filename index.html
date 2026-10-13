@@ -644,6 +644,19 @@ function match(a="",b="",id=""){
  return '<div class="match'+wc+'" data-match="'+id+'"><div class="team'+wa+'">'+la(a)+(sa!==""?'<span class="score">'+sa+' set</span>':"")+'</div><div class="team'+wb+'">'+lb(b)+(sb!==""?'<span class="score">'+sb+' set</span>':"")+'</div></div>';
 }
 function scoreCell(v){return v===null||v===undefined||v===""?'<span class="set-empty">–</span>':v}
+function menBracketSlots(){
+ // 14 peserta mengisi slot 1 dan 3–15; slot 2 dan 16 khusus BYE.
+ return [menTeams[0]||"", "BYE", ...menTeams.slice(1,14).map(name=>name||""), "BYE"];
+}
+function restoreMenTeamsFromRound16(){
+ // Susun ulang tepat sesuai urutan 14 kotak Admin Control.
+ const map={R1:[0,null],R2:[1,2],R3:[3,4],R4:[5,6],R5:[7,8],R6:[9,10],R7:[11,12],R8:[13,null]};
+ Object.entries(map).forEach(([id,indices])=>{
+  const m=matches[id];if(!m)return;
+  if(indices[0]!==null&&m.a&&m.a!=="BYE")menTeams[indices[0]]=m.a;
+  if(indices[1]!==null&&m.b&&m.b!=="BYE")menTeams[indices[1]]=m.b;
+ });
+}
 function initMen(){
  matches={};
  for(let i=1;i<=8;i++)matches["R"+i]={a:"",b:"",winner:"",sa:undefined,sb:undefined,round:"R16"};
@@ -651,18 +664,18 @@ function initMen(){
  for(let i=1;i<=2;i++)matches["S"+i]={a:"",b:"",winner:"",sa:undefined,sb:undefined,round:"SF"};
  matches.F={a:"",b:"",winner:"",sa:undefined,sb:undefined,round:"FINAL"};
  matches.T={a:"",b:"",winner:"",sa:undefined,sb:undefined,round:"THIRD PLACE"};
- const t=menTeams.slice();
- const slots=[t[0],"BYE",t[1],t[2],t[3],t[4],t[5],t[6],t[7],t[8],t[9],t[10],t[11],t[12],t[13],"BYE"];
+ const slots=menBracketSlots();
  for(let i=0;i<8;i++){
-  matches["R"+(i+1)].a=slots[i*2];matches["R"+(i+1)].b=slots[i*2+1];
-  if(slots[i*2]==="BYE")matches["R"+(i+1)].winner=slots[i*2+1];
-  if(slots[i*2+1]==="BYE")matches["R"+(i+1)].winner=slots[i*2];
+  const m=matches["R"+(i+1)],a=slots[i*2],b=slots[i*2+1];
+  m.a=a;m.b=b;
+  if(a==="BYE")m.winner=b;
+  if(b==="BYE")m.winner=a;
  }
- // A team facing BYE advances automatically into its quarter-final slot.
+ // Advance only the participant who faces a BYE; the BYE itself is not a participant.
  for(let i=0;i<4;i++){
   const left=matches["R"+(i*2+1)],right=matches["R"+(i*2+2)],q=matches["Q"+(i+1)];
-  if(left.winner)q.a=left.winner;
-  if(right.winner)q.b=right.winner;
+  if(left.winner&&left.b==="BYE")q.a=left.winner;
+  if(right.winner&&right.b==="BYE")q.b=right.winner;
  }
 }
 function initWomen(){
@@ -770,14 +783,11 @@ function applyDbRow(row,options={}){
  });
  if(row.winner)matches[id].winner=row.winner;
  if(row.division==="PUTRA"&&/^R[1-8]$/.test(id)){
-  // Rebuild Admin inputs in their original order, not bracket-slot order.
-  const inputSlots={
-   R1:[0,null],R2:[1,2],R3:[3,4],R4:[5,6],
-   R5:[7,8],R6:[9,10],R7:[11,12],R8:[13,null]
-  }[id];
+  // Rebuild the 14 Admin inputs from the actual Round of 16 slots.
+  const inputSlots={R1:[0,null],R2:[1,2],R3:[3,4],R4:[5,6],R5:[7,8],R6:[9,10],R7:[11,12],R8:[13,null]}[id];
   if(inputSlots){
-   if(inputSlots[0]!==null&&row.team_a)menTeams[inputSlots[0]]=row.team_a;
-   if(inputSlots[1]!==null&&row.team_b&&row.team_b!=="BYE")menTeams[inputSlots[1]]=row.team_b;
+   if(inputSlots[0]!==null)menTeams[inputSlots[0]]=row.team_a&&row.team_a!=="BYE"?row.team_a:"";
+   if(inputSlots[1]!==null)menTeams[inputSlots[1]]=row.team_b&&row.team_b!=="BYE"?row.team_b:"";
   }
  }
  if(row.division==="PUTRI"&&(id==="S1"||id==="S2")&&!protectWomenNames){
@@ -810,10 +820,23 @@ async function loadDb(){
   renderWomen();
   buildInputs();
  }else{
+  // Start clean, load saved bracket rows, then restore Admin inputs by participant order.
   initMen();
   data.forEach(applyDbRow);
+  restoreMenTeamsFromRound16();
+  // Rebuild the bracket with BYE fixed at slots 2 and 16.
+  initMen();
+  // Preserve saved scores/winners from the loaded rows while keeping slot mapping stable.
+  data.forEach(row=>{
+   const id=row.id&&row.id.startsWith("PUTRA-")?row.id.slice(6):"";
+   if(!matches[id])return;
+   const m=matches[id];
+   if(row.score_a!==null&&row.score_a!==undefined&&row.winner)m.sa=row.score_a;
+   if(row.score_b!==null&&row.score_b!==undefined&&row.winner)m.sb=row.score_b;
+   [["set1_a","set1a"],["set1_b","set1b"],["set2_a","set2a"],["set2_b","set2b"],["set3_a","set3a"],["set3_b","set3b"]].forEach(([src,dst])=>{if(row[src]!==null&&row[src]!==undefined)m[dst]=row[src]});
+   if(row.winner)m.winner=row.winner;
+  });
   renderMen();
-  // Rebuild Admin Control inputs from the names restored from Supabase.
   buildInputs();
  }
  buildMatchSelect();
