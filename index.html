@@ -612,7 +612,7 @@ RESET
 </div>
 
 <div class="note">
-Best of 3: Set 1–2 sampai 30 poin, Set 3 (jika diperlukan) sampai 15 poin. Menang wajib selisih minimal 2 poin.
+Best of 3: Set 1–2 target 25 poin (batas maksimal 30 saat deuce), Set 3 (jika diperlukan) target 15 poin. Menang wajib selisih minimal 2 poin.
 </div>
 
 </section>
@@ -990,8 +990,9 @@ async function saveScore(){
   const [a,b]=parsed[i];
   if(a===null&&b===null)continue;
   if(a===null||b===null){alert("Isi poin kedua tim pada setiap set yang dimainkan.");return}
-  const target=i===2?15:30;
+  const target=i===2?15:25;
   const high=Math.max(a,b),low=Math.min(a,b);
+  if(i<2&&high>30){alert("Set "+(i+1)+" maksimal 30 poin saat deuce.");return}
   if(high<target||high-low<2){alert("Set "+(i+1)+" belum valid. Set "+(i===2?"3":"1–2")+" harus mencapai "+target+" poin dengan selisih minimal 2.");return}
   setWinners.push(a>b?"a":"b");
   if(setWinners.filter(x=>x==="a").length===2||setWinners.filter(x=>x==="b").length===2){
