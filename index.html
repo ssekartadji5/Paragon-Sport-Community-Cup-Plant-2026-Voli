@@ -645,17 +645,24 @@ function match(a="",b="",id=""){
 }
 function scoreCell(v){return v===null||v===undefined||v===""?'<span class="set-empty">–</span>':v}
 function menBracketSlots(){
- // 14 peserta mengisi slot 1 dan 3–15; slot 2 dan 16 khusus BYE.
- return [menTeams[0]||"", "BYE", ...menTeams.slice(1,14).map(name=>name||""), "BYE"];
+ // Admin Control mengikuti 16 slot bagan; slot 2 dan 16 selalu BYE.
+ const slots=Array.from({length:16},(_,i)=>menTeams[i]||"");
+ slots[1]="BYE";slots[15]="BYE";
+ return slots;
 }
-function restoreMenTeamsFromRound16(){
- // Susun ulang tepat sesuai urutan 14 kotak Admin Control.
- const map={R1:[0,null],R2:[1,2],R3:[3,4],R4:[5,6],R5:[7,8],R6:[9,10],R7:[11,12],R8:[13,null]};
- Object.entries(map).forEach(([id,indices])=>{
-  const m=matches[id];if(!m)return;
-  if(indices[0]!==null&&m.a&&m.a!=="BYE")menTeams[indices[0]]=m.a;
-  if(indices[1]!==null&&m.b&&m.b!=="BYE")menTeams[indices[1]]=m.b;
+function restoreMenTeamsFromRound16(rows){
+ // Pulihkan nama sesuai slot bagan 1–16 langsung dari baris R1–R8 di database.
+ const slots=Array(16).fill("");
+ (rows||[]).forEach(row=>{
+  const id=row.id&&row.id.startsWith("PUTRA-")?row.id.slice(6):"";
+  const n=Number(id.slice(1));
+  if(!/^R[1-8]$/.test(id))return;
+  const offset=(n-1)*2;
+  if(row.team_a&&row.team_a!=="BYE")slots[offset]=row.team_a;
+  if(row.team_b&&row.team_b!=="BYE")slots[offset+1]=row.team_b;
  });
+ slots[1]="BYE";slots[15]="BYE";
+ menTeams=slots;
 }
 function initMen(){
  matches={};
@@ -668,8 +675,8 @@ function initMen(){
  for(let i=0;i<8;i++){
   const m=matches["R"+(i+1)],a=slots[i*2],b=slots[i*2+1];
   m.a=a;m.b=b;
-  if(a==="BYE")m.winner=b;
-  if(b==="BYE")m.winner=a;
+  if(a==="BYE"&&b&&b!=="BYE")m.winner=b;
+  if(b==="BYE"&&a&&a!=="BYE")m.winner=a;
  }
  // Advance only the participant who faces a BYE; the BYE itself is not a participant.
  for(let i=0;i<4;i++){
@@ -736,22 +743,26 @@ function renderWomen(){
  match(matches.F.a,matches.F.b,"F")+'<div class="champ">JUARA 1 • '+(matches.F.winner||"TBD")+'</div></div></div>';
 }
 function buildInputs(){
- const count=women?4:14,data=women?womenTeams:menTeams;
- $("teamInputs").innerHTML=Array.from({length:count},(_,i)=>'<input data-team="'+i+'" placeholder="Tim '+(i+1)+'" value="'+(data[i]||"").replace(/"/g,"&quot;")+'">').join("");
+ const count=women?4:16,data=women?womenTeams:menTeams;
+ $("teamInputs").innerHTML=Array.from({length:count},(_,i)=>{
+  const isBye=!women&&(i===1||i===15);
+  const value=isBye?"BYE":(data[i]||"");
+  return '<input data-team="'+i+'" placeholder="'+(isBye?"BYE":"Tim "+(i+1-(i>1?1:0)))+'" value="'+value.replace(/"/g,"&quot;")+'" '+(isBye?'readonly aria-label="BYE slot"':'')+'>';
+ }).join("");
  document.querySelectorAll("#teamInputs input").forEach(x=>x.oninput=()=>{
-  const d=[...document.querySelectorAll("#teamInputs input")].map(x=>x.value.trim());
+  const d=[...document.querySelectorAll("#teamInputs input")].map((x,i)=>!women&&(i===1||i===15)?"BYE":x.value.trim());
   if(women){
    womenTeams=d.slice(0,4);
    womenDraftDirty=true;
    if(!matches.S1||!matches.S2||!matches.F)initWomen();
    renderWomen();
    buildMatchSelect();
-  }else menTeams=d;
+  }else{menTeams=d;menTeams[1]="BYE";menTeams[15]="BYE";}
  });
 }
 function saveInputs(){
- const d=[...document.querySelectorAll("#teamInputs input")].map(x=>x.value.trim());
- if(women)womenTeams=d;else menTeams=d;
+ const d=[...document.querySelectorAll("#teamInputs input")].map((x,i)=>!women&&(i===1||i===15)?"BYE":x.value.trim());
+ if(women)womenTeams=d;else{menTeams=d;menTeams[1]="BYE";menTeams[15]="BYE";}
 }
 function matchNumber(id){if(women)return id==="S1"?1:id==="S2"?2:3;return {R1:1,R2:2,R3:3,R4:4,R5:5,R6:6,R7:7,R8:8,Q1:9,Q2:10,Q3:11,Q4:12,S1:13,S2:14,F:15,T:16}[id]||0}
 function dbRows(){
@@ -783,12 +794,9 @@ function applyDbRow(row,options={}){
  });
  if(row.winner)matches[id].winner=row.winner;
  if(row.division==="PUTRA"&&/^R[1-8]$/.test(id)){
-  // Rebuild the 14 Admin inputs from the actual Round of 16 slots.
-  const inputSlots={R1:[0,null],R2:[1,2],R3:[3,4],R4:[5,6],R5:[7,8],R6:[9,10],R7:[11,12],R8:[13,null]}[id];
-  if(inputSlots){
-   if(inputSlots[0]!==null)menTeams[inputSlots[0]]=row.team_a&&row.team_a!=="BYE"?row.team_a:"";
-   if(inputSlots[1]!==null)menTeams[inputSlots[1]]=row.team_b&&row.team_b!=="BYE"?row.team_b:"";
-  }
+  const n=Number(id.slice(1)),offset=(n-1)*2;
+  if(row.team_a&&row.team_a!=="BYE")menTeams[offset]=row.team_a;
+  if(row.team_b&&row.team_b!=="BYE")menTeams[offset+1]=row.team_b;
  }
  if(row.division==="PUTRI"&&(id==="S1"||id==="S2")&&!protectWomenNames){
   const n=id==="S1"?0:2;
@@ -820,22 +828,22 @@ async function loadDb(){
   renderWomen();
   buildInputs();
  }else{
-  // Start clean, load saved bracket rows, then restore Admin inputs by participant order.
+  // Restore the 16 bracket slots directly from Supabase, forcing BYE at slots 2 and 16.
+  menTeams=Array(16).fill("");
+  restoreMenTeamsFromRound16(data);
   initMen();
-  data.forEach(applyDbRow);
-  restoreMenTeamsFromRound16();
-  // Rebuild the bracket with BYE fixed at slots 2 and 16.
-  initMen();
-  // Preserve saved scores/winners from the loaded rows while keeping slot mapping stable.
   data.forEach(row=>{
    const id=row.id&&row.id.startsWith("PUTRA-")?row.id.slice(6):"";
    if(!matches[id])return;
    const m=matches[id];
-   if(row.score_a!==null&&row.score_a!==undefined&&row.winner)m.sa=row.score_a;
-   if(row.score_b!==null&&row.score_b!==undefined&&row.winner)m.sb=row.score_b;
+   if(row.score_a!==null&&row.score_a!==undefined)m.sa=row.score_a;
+   if(row.score_b!==null&&row.score_b!==undefined)m.sb=row.score_b;
    [["set1_a","set1a"],["set1_b","set1b"],["set2_a","set2a"],["set2_b","set2b"],["set3_a","set3a"],["set3_b","set3b"]].forEach(([src,dst])=>{if(row[src]!==null&&row[src]!==undefined)m[dst]=row[src]});
    if(row.winner)m.winner=row.winner;
+   if(row.status)m.status=row.status;
   });
+  // BYE matches auto-advance, unless a real saved winner already exists.
+  for(let i=1;i<=8;i++){const m=matches["R"+i];if(m&&m.b==="BYE"&&m.a&&m.a!=="BYE")m.winner=m.a;if(m&&m.a==="BYE"&&m.b&&m.b!=="BYE")m.winner=m.b;}
   renderMen();
   buildInputs();
  }
@@ -931,7 +939,8 @@ async function generateBracket(){
    matches.S2.b=womenTeams[3]||"Tim 4";
    renderWomen();
   }else{
-   menTeams=data.slice(0,14);
+   menTeams=Array.from({length:16},(_,i)=>i===1||i===15?"BYE":(data[i]||""));
+   menTeams[1]="BYE";menTeams[15]="BYE";
    initMen();
    renderMen();
   }
@@ -950,7 +959,7 @@ async function generateBracket(){
    renderWomen();
    womenDraftDirty=false;
   }else{
-   menTeams=data.slice(0,14);
+   menTeams=Array.from({length:16},(_,i)=>i===1||i===15?"BYE":(data[i]||""));menTeams[1]="BYE";menTeams[15]="BYE";
   }
   buildInputs();
   buildMatchSelect();
@@ -1037,7 +1046,7 @@ $("womenMode").onclick=()=>switchMode(true);
 $("generate").onclick=generateBracket;
 $("reset").onclick=async()=>{
  if(!confirm("Reset semua nama tim?"))return;
- if(women)womenTeams=Array(4).fill("");else menTeams=Array(14).fill("");
+ if(women)womenTeams=Array(4).fill("");else{menTeams=Array(16).fill("");menTeams[1]="BYE";menTeams[15]="BYE";}
  women?initWomen():initMen();buildInputs();buildMatchSelect();women?renderWomen():renderMen();
  await saveDbRows();
 };
