@@ -591,6 +591,9 @@ GENERATE BRACKET
 <button class="btn blue" id="reset">
 RESET
 </button>
+<button type="button" class="btn" id="clearScores">
+KOSONGKAN SKOR (NAMA TIM TETAP)
+</button>
 
 </div>
 
@@ -1037,6 +1040,29 @@ async function switchMode(toWomen){
  women?renderWomen():renderMen();
  buildMatchSelect();
 }
+async function clearAllScoresKeepTeams(){
+ if(!supabase){alert("Supabase belum terhubung.");return}
+ if(!confirm("Kosongkan semua skor tes Voli Putra dan Putri? Semua nama tim di seluruh babak akan tetap dipertahankan."))return;
+ const {data,error}=await supabase.from("volleyball_matches").select("*");
+ if(error||!data){console.error("Read scores:",error);alert("Gagal membaca data Supabase. Tidak ada perubahan yang dilakukan.");return}
+ const rows=data.map(row=>({
+  ...row,
+  score_a:0,score_b:0,
+  set1_a:null,set1_b:null,set2_a:null,set2_b:null,set3_a:null,set3_b:null,
+  winner:"",status:"pending",updated_at:new Date().toISOString()
+ }));
+ const {error:saveError}=await supabase.from("volleyball_matches").upsert(rows,{onConflict:"id"});
+ if(saveError){console.error("Clear scores:",saveError);alert("Gagal mengosongkan skor. Periksa koneksi Supabase.");return}
+ Object.values(matches).forEach(m=>{
+  m.sa=undefined;m.sb=undefined;
+  m.set1a=m.set1b=m.set2a=m.set2b=m.set3a=m.set3b=undefined;
+  m.winner="";
+ });
+ render();
+ buildMatchSelect();
+ loadScore($("matchSelect").value);
+ alert("Semua skor tes Putra dan Putri sudah dikosongkan. Nama tim tetap dipertahankan.");
+}
 function setAdmin(){
  const p=prompt("Masukkan password Admin");
  if(p==="SCC2026")document.body.className="is-admin";
@@ -1045,6 +1071,7 @@ function setAdmin(){
 $("menMode").onclick=()=>switchMode(false);
 $("womenMode").onclick=()=>switchMode(true);
 $("generate").onclick=generateBracket;
+$("clearScores").onclick=clearAllScoresKeepTeams;
 $("reset").onclick=async()=>{
  if(!confirm("Reset semua nama tim?"))return;
  if(women)womenTeams=Array(4).fill("");else{menTeams=Array(16).fill("");menTeams[1]="BYE";menTeams[15]="BYE";}
